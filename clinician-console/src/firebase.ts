@@ -11,4 +11,4 @@ const app = initializeApp({
 });
 
 export const auth = getAuth(app);
-export const functions = getFunctions(app, import.meta.env.VITE_FB_FUNCTIONS_REGION || "us-central1");
+export const functions = getFunctions(app, import.meta.env.VITE_FB_FUNCTIONS_REGION || "us-east1");

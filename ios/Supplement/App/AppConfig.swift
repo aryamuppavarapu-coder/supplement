@@ -7,5 +7,5 @@ enum AppConfig {
     static let revenueCatAPIKey = ""
 
     /// Cloud Functions region (must match functions/src/index.ts setGlobalOptions).
-    static let functionsRegion = "us-central1"
+    static let functionsRegion = "us-east1"
 }

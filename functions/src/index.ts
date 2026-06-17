@@ -9,7 +9,9 @@
  */
 import { setGlobalOptions } from "firebase-functions/v2";
 
-setGlobalOptions({ region: "us-central1", maxInstances: 10 });
+// Region must match the Cloud Storage bucket's region (the onReportUpload trigger
+// listens to it). This project's default bucket is us-east1.
+setGlobalOptions({ region: "us-east1", maxInstances: 10 });
 
 export { onReportUpload } from "./extract.js";
 export { confirmAndExplain } from "./explain.js";
