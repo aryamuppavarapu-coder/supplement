@@ -12,7 +12,8 @@
     "build:core": "npm run build --workspace packages/core",
     "test:core": "npm run test --workspace packages/core",
     "build:functions": "npm run build --workspace functions",
-    "test": "npm run test --workspace packages/core"
+    "test": "npm run test --workspace packages/core",
+    "deploy": "npm run build:core && npm run build:functions && firebase deploy --only functions,firestore,storage"
   },
   "engines": {
     "node": ">=20"
