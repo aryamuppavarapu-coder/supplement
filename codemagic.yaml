@@ -1,0 +1,84 @@
+# Codemagic CI — builds, signs, and ships the iOS app on macOS cloud runners so no Mac is
+# needed locally (SPEC §7.1; this repo was authored on Windows). Connect this repo in the
+# Codemagic dashboard; it reads this file from the repo root.
+#
+# TWO workflows:
+#   1) ios-debug-build  — compiles WITHOUT signing. Needs only the connected Git repo. Run this
+#                          first to confirm the app builds (it's the smoke test for the Swift that
+#                          couldn't be compiled on Windows). No Apple account required.
+#   2) ios-testflight   — full signed build + TestFlight upload. Needs an Apple Developer account
+#                          and the integrations/vars below configured in the Codemagic UI.
+#
+workflows:
+  ios-debug-build:
+    name: Supplement iOS — compile check (no signing)
+    instance_type: mac_mini_m2
+    max_build_duration: 45
+    environment:
+      xcode: latest
+      vars:
+        XCODE_PROJECT: "ios/Supplement.xcodeproj"
+        XCODE_SCHEME: "Supplement"
+    scripts:
+      - name: Install XcodeGen and generate the Xcode project
+        script: |
+          brew install xcodegen
+          cd ios && xcodegen generate
+      - name: Resolve Swift packages
+        script: |
+          xcodebuild -resolvePackageDependencies -project "$XCODE_PROJECT" -scheme "$XCODE_SCHEME"
+      - name: Build for simulator (no code signing)
+        script: |
+          xcodebuild build \
+            -project "$XCODE_PROJECT" \
+            -scheme "$XCODE_SCHEME" \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO | tee /tmp/xcodebuild.log
+    artifacts:
+      - /tmp/xcodebuild.log
+
+  ios-testflight:
+    name: Supplement iOS — TestFlight
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      app_store_connect: CodemagicASCKey   # name of your configured ASC API key integration
+    environment:
+      xcode: latest
+      vars:
+        XCODE_PROJECT: "ios/Supplement.xcodeproj"
+        XCODE_SCHEME: "Supplement"
+        BUNDLE_ID: "com.supplement.app"
+      groups:
+        - supplement
+    scripts:
+      - name: Install XcodeGen and generate the Xcode project
+        script: |
+          brew install xcodegen
+          cd ios && xcodegen generate
+      - name: Inject GoogleService-Info.plist
+        script: |
+          if [ -n "$GOOGLE_SERVICE_INFO_PLIST" ]; then
+            echo "$GOOGLE_SERVICE_INFO_PLIST" | base64 --decode > ios/Supplement/GoogleService-Info.plist
+          else
+            echo "WARNING: GOOGLE_SERVICE_INFO_PLIST not set — Firebase will not configure at runtime."
+          fi
+      - name: Resolve Swift packages
+        script: |
+          xcodebuild -resolvePackageDependencies -project "$XCODE_PROJECT" -scheme "$XCODE_SCHEME"
+      - name: Set up code signing
+        script: |
+          xcode-project use-profiles
+      - name: Build IPA
+        script: |
+          xcode-project build-ipa \
+            --project "$XCODE_PROJECT" \
+            --scheme "$XCODE_SCHEME"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true

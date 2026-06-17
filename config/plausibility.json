@@ -1,0 +1,16 @@
+{
+  "_table": "plausibility",
+  "_spec": "SPEC §5.2 — physiological bounds used to catch a misread decimal (a safety event). Out-of-bounds → the value is flagged for user confirmation, never auto-corrected.",
+  "_warning": "⚠️ VERIFY. Ships EMPTY and unverified. These are generous sanity bounds (far wider than reference ranges), not diagnostic thresholds, but they are still safety-relevant — have a clinician review them. While verified=false, no plausibility check runs.",
+  "_exampleEntryShape": {
+    "markerStd": "potassium",
+    "unitStd": "mmol/L",
+    "min": 0,
+    "max": 0,
+    "sourceRef": "REPLACE — citation",
+    "reviewedBy": "REPLACE — reviewing clinician",
+    "reviewedAt": "REPLACE — ISO date"
+  },
+  "verified": false,
+  "entries": []
+}

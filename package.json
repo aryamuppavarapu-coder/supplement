@@ -1,0 +1,20 @@
+{
+  "name": "supplement",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Supplement — lab-result wellness app (Tier 1) + clinician-in-the-loop clinical layer (Tier 2). See SPEC.md.",
+  "workspaces": [
+    "packages/core",
+    "functions",
+    "clinician-console"
+  ],
+  "scripts": {
+    "build:core": "npm run build --workspace packages/core",
+    "test:core": "npm run test --workspace packages/core",
+    "build:functions": "npm run build --workspace functions",
+    "test": "npm run test --workspace packages/core"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

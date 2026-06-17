@@ -1,0 +1,18 @@
+{
+  "_table": "interactions",
+  "_spec": "SPEC §6.2 — nutrient–drug / nutrient–condition screening that gates every supplement suggestion (§2.4).",
+  "_warning": "⚠️ VERIFY. Ships EMPTY and unverified. The illustrative categories in SPEC §6.2 (e.g. vitamin K with anticoagulants; iron with iron-overload; magnesium with advanced kidney disease; potassium with reduced kidney function/some BP meds; mineral–thyroid-med absorption timing) are PLACEHOLDERS A CLINICIAN/PHARMACIST MUST CONFIRM — not facts. While verified=false, the engine withholds ALL supplement suggestions (fail-safe).",
+  "_triggerIdReference": "triggerId must be one of the canonical ids in packages/core/src/taxonomy.ts (MEDICATION_CLASSES / CONDITIONS). nutrient must be one of NUTRIENTS.",
+  "_exampleEntryShape": {
+    "nutrient": "vitamin_k",
+    "triggerType": "medication",
+    "triggerId": "anticoagulant",
+    "action": "suppress",
+    "note": "REPLACE — plain-language reason shown to the user / used by the explainer",
+    "sourceRef": "REPLACE — citation to the clinician/pharmacist-reviewed source",
+    "reviewedBy": "REPLACE — name + credential of the reviewer",
+    "reviewedAt": "REPLACE — ISO date of sign-off"
+  },
+  "verified": false,
+  "entries": []
+}

@@ -1,0 +1,42 @@
+# Node
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+coverage/
+.eslintcache
+
+# Env / secrets — NEVER commit (SPEC §7.7)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+serviceAccount*.json
+google-services.json
+GoogleService-Info.plist
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+.runtimeconfig.json
+
+# iOS / Xcode (generated)
+ios/build/
+ios/DerivedData/
+ios/*.xcodeproj/
+ios/*.xcworkspace/
+ios/Pods/
+ios/.swiftpm/
+*.xcuserstate
+xcuserdata/
+
+# macOS / Windows cruft
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*

@@ -1,0 +1,16 @@
+{
+  "_table": "critical-values",
+  "_spec": "SPEC §6.1 — drives the urgent-care banner and pathway suppression (§2.3).",
+  "_warning": "⚠️ VERIFY. Ships EMPTY and unverified. Populate ONLY from an authoritative, clinician-reviewed source. Do NOT fill from memory or model output. Set verified=true only after a named clinician signs off and every entry has reviewedBy + reviewedAt. While verified=false, critical escalation does not fire (SPEC §11 'behind a flag').",
+  "_exampleEntryShape": {
+    "markerStd": "potassium",
+    "unitStd": "mmol/L",
+    "criticalLow": null,
+    "criticalHigh": null,
+    "sourceRef": "REPLACE — citation to the clinician-reviewed source",
+    "reviewedBy": "REPLACE — name + credential of the reviewing clinician",
+    "reviewedAt": "REPLACE — ISO date of sign-off"
+  },
+  "verified": false,
+  "entries": []
+}

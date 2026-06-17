@@ -1,0 +1,67 @@
+# XcodeGen project definition (SPEC §7.1). We don't hand-write or commit the .xcodeproj
+# (it's generated on the macOS CI by `xcodegen generate`), which keeps the repo buildable
+# from Windows. Codemagic runs xcodegen before building (see codemagic.yaml).
+name: Supplement
+options:
+  bundleIdPrefix: com.supplement
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+
+settings:
+  base:
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.10"
+    TARGETED_DEVICE_FAMILY: "1" # iPhone
+    CODE_SIGN_STYLE: Manual
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+
+packages:
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    minorVersion: 11.6.0
+  RevenueCat:
+    url: https://github.com/RevenueCat/purchases-ios
+    minorVersion: 5.14.0
+
+targets:
+  Supplement:
+    type: application
+    platform: iOS
+    sources:
+      - path: Supplement
+    info:
+      path: Supplement/Info.generated.plist
+      properties:
+        CFBundleDisplayName: Supplement
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        UILaunchScreen:
+          UIColorName: ""
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        NSCameraUsageDescription: "Supplement uses the camera to scan your printed lab reports."
+        NSPhotoLibraryUsageDescription: "Supplement imports photos of your lab reports from your library."
+        ITSAppUsesNonExemptEncryption: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.supplement.app
+        GENERATE_INFOPLIST_FILE: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    dependencies:
+      - package: Firebase
+        product: FirebaseAuth
+      - package: Firebase
+        product: FirebaseFirestore
+      - package: Firebase
+        product: FirebaseStorage
+      - package: Firebase
+        product: FirebaseFunctions
+      - package: Firebase
+        product: FirebaseCrashlytics
+      - package: Firebase
+        product: FirebaseAnalytics
+      - package: RevenueCat
+        product: RevenueCat
