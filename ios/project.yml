@@ -65,3 +65,15 @@ targets:
         product: FirebaseAnalytics
       - package: RevenueCat
         product: RevenueCat
+
+# A shared scheme so `xcodebuild -scheme Supplement` works on CI (Codemagic) without opening
+# Xcode to auto-generate one.
+schemes:
+  Supplement:
+    build:
+      targets:
+        Supplement: all
+    run:
+      config: Debug
+    archive:
+      config: Release
