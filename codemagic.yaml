@@ -53,17 +53,18 @@ workflows:
       groups:
         - supplement
     scripts:
-      - name: Install XcodeGen and generate the Xcode project
-        script: |
-          brew install xcodegen
-          cd ios && xcodegen generate
-      - name: Inject GoogleService-Info.plist
+      - name: Inject GoogleService-Info.plist (BEFORE xcodegen so it's bundled into the app)
         script: |
           if [ -n "$GOOGLE_SERVICE_INFO_PLIST" ]; then
             echo "$GOOGLE_SERVICE_INFO_PLIST" | base64 --decode > ios/Supplement/GoogleService-Info.plist
           else
-            echo "WARNING: GOOGLE_SERVICE_INFO_PLIST not set — Firebase will not configure at runtime."
+            echo "ERROR: GOOGLE_SERVICE_INFO_PLIST not set — the app would crash at launch without Firebase config."
+            exit 1
           fi
+      - name: Install XcodeGen and generate the Xcode project
+        script: |
+          brew install xcodegen
+          cd ios && xcodegen generate
       - name: Resolve Swift packages
         script: |
           xcodebuild -resolvePackageDependencies -project "$XCODE_PROJECT" -scheme "$XCODE_SCHEME"
