@@ -30,7 +30,7 @@ ios/
 1. **`GoogleService-Info.plist`** — download from your Firebase project and place at `ios/Supplement/GoogleService-Info.plist` (gitignored). On Codemagic, provide it as the base64 env var `GOOGLE_SERVICE_INFO_PLIST` (the CI decodes it).
 2. **App icon** — `Assets.xcassets/AppIcon.appiconset` ships with an empty 1024px slot so it compiles; add a real PNG before submitting to TestFlight.
 3. **RevenueCat key** — set `AppConfig.revenueCatAPIKey` to your public SDK key.
-4. **Signing** — configure an App Store Connect API key + bundle id `com.supplement.app` in Codemagic.
+4. **Signing** — configure an App Store Connect API key + bundle id `com.muppbury.supplement` in Codemagic.
 
 ## Build locally (only on a Mac)
 

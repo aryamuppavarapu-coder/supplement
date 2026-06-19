@@ -49,7 +49,7 @@ workflows:
       vars:
         XCODE_PROJECT: "ios/Supplement.xcodeproj"
         XCODE_SCHEME: "Supplement"
-        BUNDLE_ID: "com.supplement.app"
+        BUNDLE_ID: "com.muppbury.supplement"
       groups:
         - supplement
     scripts:
