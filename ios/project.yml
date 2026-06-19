@@ -42,6 +42,14 @@ targets:
           UIColorName: ""
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
+        # Apple requires all four orientations for iPad (multitasking) even on an
+        # iPhone-first app. iPhone stays portrait-only via the key above.
+        "UISupportedInterfaceOrientations~ipad":
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UIRequiresFullScreen: true
         NSCameraUsageDescription: "Supplement uses the camera to scan your printed lab reports."
         NSPhotoLibraryUsageDescription: "Supplement imports photos of your lab reports from your library."
         ITSAppUsesNonExemptEncryption: false
