@@ -130,7 +130,9 @@ struct TrendsView: View {
                 }
             }
             .task { await store.load() }
-            .tutorial("trends", steps: tips, replay: $showHelp)
+            .tutorial("trends", steps: tips, replay: $showHelp,
+                      demo: TutorialDemo(resource: "trends", title: "How Trends works",
+                                         caption: "Pick any marker to see it charted over time against your reference range."))
         }
     }
 

@@ -95,7 +95,9 @@ struct HomeView: View {
             }
             .sheet(isPresented: $showUpload) { UploadView() }
             .onAppear { store.start() }
-            .tutorial("reports", steps: tips, replay: $showHelp)
+            .tutorial("reports", steps: tips, replay: $showHelp,
+                      demo: TutorialDemo(resource: "reports", title: "How Reports works",
+                                         caption: "Add a report, let the AI read every value, then open it for a plain-language breakdown."))
         }
         .tint(Theme.accent)
     }

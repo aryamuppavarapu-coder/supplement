@@ -65,7 +65,9 @@ struct DoctorDirectoryView: View {
                 }
             }
             .task { await store.load() }
-            .tutorial("doctors", steps: tips, replay: $showHelp)
+            .tutorial("doctors", steps: tips, replay: $showHelp,
+                      demo: TutorialDemo(resource: "doctors", title: "How Doctors works",
+                                         caption: "Browse providers to discuss your results — sponsored listings are always labeled."))
         }
     }
 }

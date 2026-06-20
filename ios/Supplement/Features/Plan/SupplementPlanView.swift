@@ -78,14 +78,34 @@ struct SupplementPlanView: View {
             }
         }
 
-        // Nothing at all to show (no out-of-range markers we have ideas for, nothing screened in or out).
-        if generalTips.isEmpty && screenedItems.isEmpty && suppressedCount == 0 && (plan?.enabled ?? false) {
+        // Markers loaded and all in range — still give a positive maintenance plan (never blank).
+        if !markers.isEmpty && generalTips.isEmpty && screenedItems.isEmpty && suppressedCount == 0 {
             GlassCard {
-                EmptyHint(
-                    title: "Everything looks on track",
-                    message: "No out-of-range markers mapped to a wellness idea right now. Keep adding reports to watch your trends.",
-                    systemImage: "checkmark.seal"
-                )
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack(spacing: 12) {
+                        ZStack {
+                            Circle().fill(Color(hex: 0x2A8159).opacity(0.14)).frame(width: 40, height: 40)
+                            Image(systemName: "checkmark.seal.fill")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundStyle(Color(hex: 0x2A8159))
+                        }
+                        Text("Your markers look on track")
+                            .font(Theme.heading(17))
+                            .foregroundStyle(Theme.ink)
+                        Spacer(minLength: 0)
+                    }
+                    Text("Nothing is out of range right now. To keep it that way, everyday wellness habits help — and many people discuss a daily multivitamin or vitamin D with their provider.")
+                        .font(Theme.rounded(.callout))
+                        .foregroundStyle(Theme.inkSoft)
+                        .fixedSize(horizontal: false, vertical: true)
+                    VStack(alignment: .leading, spacing: 4) {
+                        SectionLabel("Everyday basics")
+                        Text("Colorful vegetables  ·  Whole grains  ·  Regular activity  ·  Hydration  ·  Sleep")
+                            .font(Theme.rounded(.callout, weight: .medium))
+                            .foregroundStyle(Theme.ink)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
             }
         }
 

@@ -53,24 +53,36 @@ extension View {
 /// Primary CTA: green fill, WHITE text. Use via `.buttonStyle(.aero)`.
 struct AeroButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(Theme.rounded(.headline, weight: .semibold))
-            .foregroundStyle(.white)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 15)
-            .background(Theme.gloss, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .overlay(alignment: .top) {
-                // subtle top sheen — kept faint so it never washes out the white label
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(LinearGradient(colors: [.white.opacity(0.22), .clear],
-                                         startPoint: .top, endPoint: .center))
-                    .padding(1)
-                    .allowsHitTesting(false)
-            }
-            .shadow(color: Theme.sageDeep.opacity(0.28), radius: 9, x: 0, y: 4)
-            .scaleEffect(configuration.isPressed ? 0.97 : 1)
-            .opacity(configuration.isPressed ? 0.92 : 1)
-            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
+        Body(configuration: configuration)
+    }
+
+    /// Inner view so we can read `isEnabled` and visibly grey the button out when disabled.
+    private struct Body: View {
+        let configuration: Configuration
+        @Environment(\.isEnabled) private var isEnabled
+        private var greyed: LinearGradient {
+            LinearGradient(colors: [Color(hex: 0xBCC6BF), Color(hex: 0xA6B1AA)], startPoint: .top, endPoint: .bottom)
+        }
+        var body: some View {
+            configuration.label
+                .font(Theme.rounded(.headline, weight: .semibold))
+                .foregroundStyle(isEnabled ? .white : Color.white.opacity(0.9))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 15)
+                .background(isEnabled ? Theme.gloss : greyed, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .overlay(alignment: .top) {
+                    // subtle top sheen — kept faint so it never washes out the white label
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(LinearGradient(colors: [.white.opacity(isEnabled ? 0.22 : 0.12), .clear],
+                                             startPoint: .top, endPoint: .center))
+                        .padding(1)
+                        .allowsHitTesting(false)
+                }
+                .shadow(color: (isEnabled ? Theme.sageDeep : Color.gray).opacity(isEnabled ? 0.28 : 0.12), radius: 9, x: 0, y: 4)
+                .scaleEffect(configuration.isPressed ? 0.97 : 1)
+                .opacity(isEnabled ? (configuration.isPressed ? 0.92 : 1) : 0.85)
+                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
+        }
     }
 }
 

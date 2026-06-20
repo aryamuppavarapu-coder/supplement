@@ -161,7 +161,9 @@ struct ProfileView: View {
                     TutorialHelpButton(replay: $showHelp)
                 }
             }
-            .tutorial("profile", steps: tips, replay: $showHelp)
+            .tutorial("profile", steps: tips, replay: $showHelp,
+                      demo: TutorialDemo(resource: "profile", title: "How Profile works",
+                                         caption: "Edit your health details and export or delete your data anytime."))
             .sheet(isPresented: $showEditProfile) {
                 IntakeView(isEditing: true).environment(session)
             }

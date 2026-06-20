@@ -45,7 +45,9 @@ private struct TutorialSpotlight: View {
     /// Resolved rect of the current step's anchored element (nil = centered, no spotlight).
     let targetRect: CGRect?
     let screenSize: CGSize
+    let demo: TutorialDemo?
     let onClose: () -> Void
+    @State private var showVideo = false
 
     private var step: TutorialStep { steps[min(max(index, 0), steps.count - 1)] }
     private var isLast: Bool { index >= steps.count - 1 }
@@ -94,6 +96,9 @@ private struct TutorialSpotlight: View {
             .padding(.vertical, 22)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: cardAtTop ? .top : .bottom)
         }
+        .fullScreenCover(isPresented: $showVideo) {
+            if let demo { DemoVideoView(demo: demo) }
+        }
     }
 
     private var card: some View {
@@ -124,6 +129,19 @@ private struct TutorialSpotlight: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Close tutorial")
+            }
+
+            // Watch the animated demo video for this page (shown on the first step).
+            if demo != nil, index == 0 {
+                Button { showVideo = true } label: {
+                    Label("Watch a 20-sec demo", systemImage: "play.circle.fill")
+                        .font(Theme.rounded(.subheadline, weight: .bold))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Theme.gloss, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                }
+                .buttonStyle(.plain)
             }
 
             HStack(spacing: 10) {
@@ -164,13 +182,15 @@ private struct TutorialSpotlight: View {
 
 private struct TutorialModifier: ViewModifier {
     let steps: [TutorialStep]
+    let demo: TutorialDemo?
     @Binding var replay: Bool
     @AppStorage private var seen: Bool
     @State private var show = false
     @State private var index = 0
 
-    init(key: String, steps: [TutorialStep], replay: Binding<Bool>) {
+    init(key: String, steps: [TutorialStep], demo: TutorialDemo?, replay: Binding<Bool>) {
         self.steps = steps
+        self.demo = demo
         self._replay = replay
         self._seen = AppStorage(wrappedValue: false, "tutorial.\(key).seen")
     }
@@ -187,6 +207,7 @@ private struct TutorialModifier: ViewModifier {
                             index: $index,
                             targetRect: rect,
                             screenSize: proxy.size,
+                            demo: demo,
                             onClose: {
                                 seen = true
                                 withAnimation(.easeInOut(duration: 0.25)) { show = false }
@@ -217,9 +238,10 @@ private struct TutorialModifier: ViewModifier {
 
 extension View {
     /// Attach a once-per-page interactive tutorial. `key` namespaces the "seen" flag; toggle
-    /// `replay` to true (e.g. from a help button) to show it again.
-    func tutorial(_ key: String, steps: [TutorialStep], replay: Binding<Bool>) -> some View {
-        modifier(TutorialModifier(key: key, steps: steps, replay: replay))
+    /// `replay` to true (e.g. from a help button) to show it again. Pass `demo` to surface a
+    /// "Watch demo" video pop-up on the first step.
+    func tutorial(_ key: String, steps: [TutorialStep], replay: Binding<Bool>, demo: TutorialDemo? = nil) -> some View {
+        modifier(TutorialModifier(key: key, steps: steps, demo: demo, replay: replay))
     }
 }
 

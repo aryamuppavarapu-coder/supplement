@@ -107,7 +107,14 @@ enum MarkerGuidance {
             return Copy(body: "Sodium balance is usually managed with medical guidance and fluids, not supplements. Please discuss with your provider.",
                         foods: [], icon: "cross.case.fill")
         default:
-            return nil
+            // Generic fallback so EVERY out-of-range marker yields an actionable idea — the plan
+            // is never blank. Non-directive and food-first; names a supplement only as something
+            // to "discuss with your provider" (never a dose), keeping §2.1/§2.4 intact.
+            return high
+                ? Copy(body: "This result is above your typical range. General wellness steps — a balanced, whole-food diet, regular activity, good sleep, and limiting added sugar and alcohol — often help. Please discuss what's right for you with your provider.",
+                        foods: ["Vegetables & fruit", "Whole grains", "Lean protein", "Water over sugary drinks"], icon: "arrow.up.heart.fill")
+                : Copy(body: "This result is below your typical range. A varied, nutrient-rich diet helps, and a targeted vitamin or mineral may be worth considering — ask your provider whether a supplement is right for you.",
+                        foods: ["Colorful vegetables", "Lean protein", "Legumes & nuts", "Dairy or fortified foods"], icon: "arrow.down.heart.fill")
         }
     }
     // swiftlint:enable cyclomatic_complexity
