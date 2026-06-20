@@ -68,6 +68,19 @@ struct SupplementPlanView: View {
             }
         }
 
+        // Illustrative-data notice (SPEC §6/§12): these screens use unverified placeholder
+        // safety data until a clinician/pharmacist reviews it.
+        GlassCard(cornerRadius: 16, padding: 14) {
+            Label {
+                Text("These ideas currently use **illustrative** safety data for development — they haven't been reviewed by a clinician yet. Always confirm with your doctor or pharmacist before taking anything.")
+                    .font(Theme.rounded(.footnote, weight: .medium))
+                    .foregroundStyle(Theme.ink)
+            } icon: {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundStyle(Theme.color(for: .high))
+            }
+        }
+
         if shown.isEmpty {
             GlassCard {
                 ContentUnavailableView(

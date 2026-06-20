@@ -15,8 +15,9 @@
  * APP_ENV=test or ALLOW_UNPROVENANCED_CONFIG=true bypass (for emulator fixtures) may honor it.
  */
 import { createRequire } from "node:module";
-import { auditProvenance, EMPTY_CONFIG, type SafetyConfig } from "@supplement/core";
+import { auditProvenance, type SafetyConfig } from "@supplement/core";
 import { logger } from "firebase-functions";
+import { DEFAULT_SAFETY_CONFIG } from "./defaultSafetyConfig.js";
 
 const require = createRequire(import.meta.url);
 
@@ -34,11 +35,13 @@ let cached: SafetyConfig | null = null;
 export function loadSafetyConfig(): SafetyConfig {
   if (cached) return cached;
 
-  // Paths are relative to the compiled file (functions/dist/safetyConfig.js → repo /config).
+  // Deployed functions don't ship the repo's /config, so the fallback is the embedded
+  // ILLUSTRATIVE config (DEFAULT_SAFETY_CONFIG). A clinician-reviewed /config or a Firestore
+  // source overrides it later (and then ALLOW_UNPROVENANCED_CONFIG should be removed).
   const raw: SafetyConfig = {
-    criticalValues: tryLoad("../../config/critical-values.json", EMPTY_CONFIG.criticalValues),
-    interactions: tryLoad("../../config/interactions.json", EMPTY_CONFIG.interactions),
-    plausibility: tryLoad("../../config/plausibility.json", EMPTY_CONFIG.plausibility),
+    criticalValues: tryLoad("../../config/critical-values.json", DEFAULT_SAFETY_CONFIG.criticalValues),
+    interactions: tryLoad("../../config/interactions.json", DEFAULT_SAFETY_CONFIG.interactions),
+    plausibility: tryLoad("../../config/plausibility.json", DEFAULT_SAFETY_CONFIG.plausibility),
   };
 
   // Enforce by default everywhere; only an explicit dev/test bypass may skip it.

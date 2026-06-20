@@ -17,8 +17,12 @@ final class TrendsStore {
         guard let uid = Auth.auth().currentUser?.uid, !loading else { return }
         loading = true; defer { loading = false }
         let db = Firestore.firestore()
+        // Any report that's been read by the server has plottable markers (extracted onward) —
+        // not just fully-analyzed ones — so trends fill in as soon as a report is processed.
         guard let reports = try? await db.collection("users").document(uid)
-            .collection("reports").whereField("status", isEqualTo: "analyzed").getDocuments() else { return }
+            .collection("reports")
+            .whereField("status", in: ["extracted", "confirmed", "analyzed", "clinical_released"])
+            .getDocuments() else { return }
 
         var built: [String: Series] = [:]
         for report in reports.documents {
@@ -126,7 +130,7 @@ struct TrendsView: View {
             Text("No trends yet")
                 .font(Theme.title(24))
                 .foregroundStyle(Theme.ink)
-            Text("Upload more than one report to see how your markers change over time.")
+            Text("Upload a lab report and your markers start tracking here. Add more over time to see the trend.")
                 .font(Theme.rounded(.callout))
                 .foregroundStyle(Theme.inkSoft)
                 .multilineTextAlignment(.center)

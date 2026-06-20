@@ -6,8 +6,9 @@ import SwiftUI
 struct IntakeView: View {
     @Environment(SessionStore.self) private var session
 
-    @State private var age: Int = 35
-    @State private var sex: String = "female"
+    @State private var age: Int? = nil
+    @State private var sex: String = ""
+    @State private var customSex: String = ""
     @State private var pregnant = false
     @State private var meds: Set<MedicationClass> = []
     @State private var conditions: Set<HealthCondition> = []
@@ -35,7 +36,8 @@ struct IntakeView: View {
                                     .tint(Theme.sage)
                                 Spacer()
                                 Picker("Age", selection: $age) {
-                                    ForEach(13...100, id: \.self) { Text("\($0)").tag($0) }
+                                    Text("Select").tag(Int?.none)
+                                    ForEach(13...100, id: \.self) { Text("\($0)").tag(Int?.some($0)) }
                                 }
                                 .labelsHidden()
                                 .tint(Theme.sageDeep)
@@ -51,13 +53,26 @@ struct IntakeView: View {
                                     .tint(Theme.sage)
                                 Spacer()
                                 Picker("Biological sex", selection: $sex) {
+                                    Text("Select").tag("")
                                     Text("Female").tag("female")
                                     Text("Male").tag("male")
                                     Text("Intersex").tag("intersex")
+                                    Text("Other").tag("other")
                                     Text("Prefer not to say").tag("unknown")
                                 }
                                 .labelsHidden()
                                 .tint(Theme.sageDeep)
+                            }
+
+                            if sex == "other" {
+                                Divider().overlay(Theme.sage.opacity(0.25))
+                                TextField("Describe how you identify", text: $customSex)
+                                    .font(Theme.rounded(.body))
+                                    .foregroundStyle(Theme.ink)
+                                    .padding(.vertical, 10)
+                                    .padding(.horizontal, 14)
+                                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                                    .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Theme.sage.opacity(0.35), lineWidth: 1))
                             }
 
                             if sex == "female" {
@@ -127,8 +142,11 @@ struct IntakeView: View {
                     Button {
                         busy = true
                         Task {
+                            let resolvedSex: String? = sex == "other"
+                                ? (customSex.isEmpty ? "other" : customSex)
+                                : (sex.isEmpty ? nil : sex)
                             await session.saveIntake(
-                                profile: .init(age: age, sex: sex, pregnant: pregnant, heightCm: nil, weightKg: nil, goals: nil),
+                                profile: .init(age: age, sex: resolvedSex, pregnant: sex == "female" ? pregnant : false, heightCm: nil, weightKg: nil, goals: nil),
                                 medications: Array(meds),
                                 conditions: Array(conditions),
                                 disclosedMeds: willDiscloseMeds,
