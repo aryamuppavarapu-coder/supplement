@@ -60,7 +60,7 @@ struct DoctorDirectoryView: View {
             .navigationTitle("Find a provider")
             .aeroScreen()
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .topBarLeading) {
                     TutorialHelpButton(replay: $showHelp)
                 }
             }

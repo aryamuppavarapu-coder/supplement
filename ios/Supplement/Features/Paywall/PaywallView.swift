@@ -107,7 +107,7 @@ struct PaywallView: View {
                     GlassCard(cornerRadius: 16, padding: 14) {
                         HStack(alignment: .top, spacing: 8) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(Theme.color(for: .high))
+                                .foregroundStyle(Theme.amber)
                             Text(error)
                                 .font(Theme.rounded(.footnote))
                                 .foregroundStyle(Theme.ink)

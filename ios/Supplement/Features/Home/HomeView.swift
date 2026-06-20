@@ -6,10 +6,10 @@ struct HomeView: View {
     @State private var showHelp = false
 
     private let tips = [
-        TutorialStep(icon: "doc.text.magnifyingglass", title: "Your reports",
+        TutorialStep(anchorID: "home.report", icon: "doc.text.magnifyingglass", title: "Your reports",
                      message: "Every lab report you add lives here. Tap one for a plain-language breakdown of each marker."),
         TutorialStep(icon: "plus.circle.fill", title: "Add a report",
-                     message: "Tap the + to scan or import a PDF or photo. We read the values and flag what's outside your range."),
+                     message: "Tap the + in the top-right to scan or import a PDF or photo. We read the values and flag what's outside your range."),
         TutorialStep(icon: "leaf.fill", title: "Wellness-first & private",
                      message: "We explain results in everyday language — never a diagnosis — and your data is never sold."),
     ]
@@ -62,6 +62,7 @@ struct HomeView: View {
                     } label: {
                         ReportRow(report: report)
                     }
+                    .tutorialAnchor(report.id == store.reports.first?.id ? "home.report" : "home.report-\(report.id)")
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))

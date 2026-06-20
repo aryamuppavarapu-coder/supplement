@@ -49,9 +49,9 @@ struct TrendsView: View {
     private let tips = [
         TutorialStep(icon: "chart.xyaxis.line", title: "Track over time",
                      message: "Each marker is plotted as you add reports, so you can see whether it's trending toward or away from your range."),
-        TutorialStep(icon: "slider.horizontal.3", title: "Pick a marker",
-                     message: "Choose any marker from the menu to see its own chart and reference band."),
-        TutorialStep(icon: "leaf.fill", title: "The shaded band",
+        TutorialStep(anchorID: "trends.picker", icon: "slider.horizontal.3", title: "Pick a marker",
+                     message: "Choose any marker from this menu to see its own chart and reference band."),
+        TutorialStep(anchorID: "trends.chart", icon: "leaf.fill", title: "The shaded band",
                      message: "The green band is your reference range — points inside it are within range."),
     ]
 
@@ -74,6 +74,7 @@ struct TrendsView: View {
                                 .font(Theme.rounded(.body, weight: .medium))
                             }
                             .glassCard()
+                            .tutorialAnchor("trends.picker")
                         }
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
@@ -111,6 +112,7 @@ struct TrendsView: View {
                                     }
                                 }
                                 .glassCard()
+                                .tutorialAnchor("trends.chart")
                             }
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
@@ -123,7 +125,7 @@ struct TrendsView: View {
             .navigationTitle("Trends")
             .aeroScreen()
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .topBarLeading) {
                     TutorialHelpButton(replay: $showHelp)
                 }
             }

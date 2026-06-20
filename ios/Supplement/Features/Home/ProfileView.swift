@@ -15,10 +15,12 @@ struct ProfileView: View {
     @State private var showEditProfile = false
 
     private let tips = [
-        TutorialStep(icon: "person.crop.circle", title: "Your account",
-                     message: "Manage your sign-in and your subscription from here."),
-        TutorialStep(icon: "lock.shield.fill", title: "Your data, your control",
-                     message: "Export a full copy of your data anytime, or permanently delete your account and everything in it."),
+        TutorialStep(icon: "person.crop.circle", title: "Your profile",
+                     message: "Manage your account, subscription, health details, and privacy here."),
+        TutorialStep(anchorID: "profile.edit", icon: "heart.text.square.fill", title: "Edit your health details",
+                     message: "Tap here anytime to update your age, biological sex, medications and conditions — we use them to screen suggestions safely."),
+        TutorialStep(anchorID: "profile.privacy", icon: "lock.shield.fill", title: "Your data, your control",
+                     message: "Export a full copy of your data, or permanently delete your account and everything in it."),
     ]
 
     var body: some View {
@@ -82,6 +84,7 @@ struct ProfileView: View {
                             }
                         }
                         .buttonStyle(.plain)
+                        .tutorialAnchor("profile.edit")
                     }
 
                     // ── Subscription ─────────────────────────────────────────
@@ -143,6 +146,7 @@ struct ProfileView: View {
                                 }
                             }
                         }
+                        .tutorialAnchor("profile.privacy")
                     }
 
                     DisclaimerBanner()
@@ -153,7 +157,7 @@ struct ProfileView: View {
             .aeroScreen()
             .navigationTitle("Profile")
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .topBarLeading) {
                     TutorialHelpButton(replay: $showHelp)
                 }
             }

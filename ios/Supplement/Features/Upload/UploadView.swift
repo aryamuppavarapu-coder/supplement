@@ -153,7 +153,7 @@ struct UploadView: View {
             HStack(alignment: .top, spacing: 12) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(Theme.color(for: .high))
+                    .foregroundStyle(Theme.amber)
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Upload didn't go through")
                         .font(Theme.heading(17))
@@ -171,7 +171,7 @@ struct UploadView: View {
         }
         .overlay(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(Theme.color(for: .high).opacity(0.45), lineWidth: 1.5)
+                .stroke(Theme.amber.opacity(0.45), lineWidth: 1.5)
         )
     }
 }

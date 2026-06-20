@@ -83,7 +83,7 @@ struct ConfirmValuesView: View {
                                 ForEach(marker.reviewReasons, id: \.self) { reason in
                                     Label(reason, systemImage: "exclamationmark.triangle.fill")
                                         .font(Theme.rounded(.caption, weight: .medium))
-                                        .foregroundStyle(Theme.color(for: .high))
+                                        .foregroundStyle(Theme.amber)
                                 }
                             }
                         }

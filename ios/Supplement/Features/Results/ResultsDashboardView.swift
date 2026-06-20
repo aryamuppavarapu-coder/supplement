@@ -99,7 +99,9 @@ struct ResultsDashboardView: View {
                 }
 
                 NavigationLink {
-                    SupplementPlanView(plan: store.plan, hasCritical: store.report?.hasCritical ?? false)
+                    SupplementPlanView(plan: store.plan,
+                                       hasCritical: store.report?.hasCritical ?? false,
+                                       markers: store.sortedMarkers)
                 } label: {
                     Label("Supplement & food plan", systemImage: "leaf.fill")
                 }

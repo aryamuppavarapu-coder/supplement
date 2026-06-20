@@ -50,9 +50,10 @@ enum Theme {
     // ── Status colors ───────────────────────────────────────────────────────────
     static func color(for status: MarkerStatus) -> Color {
         switch status {
-        case .inRange: return Color(hex: 0x2A8159)          // green (readable as text)
-        case .low, .high: return Color(hex: 0xB26C12)       // amber
-        case .criticalLow, .criticalHigh: return Color(hex: 0xC5402F) // red
+        case .inRange: return Color(hex: 0x2A8159)              // green
+        case .low: return Color(hex: 0xC9870A)                  // strong amber-yellow (caution)
+        case .high: return Color(hex: 0xD23B2C)                 // red (alarming)
+        case .criticalLow, .criticalHigh: return Color(hex: 0xB02617) // deep red (urgent)
         case .qualitative: return teal
         case .indeterminate: return inkSoft
         }
