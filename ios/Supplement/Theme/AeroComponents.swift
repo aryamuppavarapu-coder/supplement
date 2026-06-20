@@ -53,12 +53,13 @@ extension View {
 /// Primary CTA: green fill, WHITE text. Use via `.buttonStyle(.aero)`.
 struct AeroButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
-        Body(configuration: configuration)
+        AeroButtonBody(configuration: configuration)
     }
 
     /// Inner view so we can read `isEnabled` and visibly grey the button out when disabled.
-    /// Must be at least as accessible as AeroButtonStyle (ButtonStyle.Body requirement) — not private.
-    struct Body: View {
+    /// NOTE: must NOT be named `Body` — that shadows ButtonStyle's `Body` associated type and
+    /// makes the opaque `makeBody` return type fail to satisfy the protocol witness.
+    struct AeroButtonBody: View {
         let configuration: ButtonStyleConfiguration
         @Environment(\.isEnabled) private var isEnabled
         private var greyed: LinearGradient {
