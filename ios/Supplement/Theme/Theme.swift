@@ -18,6 +18,13 @@ enum Theme {
     static let ink = Color(hex: 0x18271F)         // primary text (near-black)
     static let inkSoft = Color(hex: 0x586860)     // secondary text (medium, readable on white)
 
+    // Accent text colors — all chosen dark enough to read on light surfaces (≥4.5:1),
+    // so headings/labels/icons can use color tastefully instead of only black.
+    static let blue = Color(hex: 0x2C6FA6)        // calm blue (info, summaries)
+    static let teal = Color(hex: 0x227F86)        // deep teal (qualitative, badges)
+    static let amber = Color(hex: 0xB26C12)       // warm amber/orange (caution, highlights)
+    static let berry = Color(hex: 0xB14A6B)       // muted berry (occasional accent)
+
     static let accent = sageDeep
 
     // ── Gradients (subtle) ──────────────────────────────────────────────────────
@@ -43,10 +50,10 @@ enum Theme {
     // ── Status colors ───────────────────────────────────────────────────────────
     static func color(for status: MarkerStatus) -> Color {
         switch status {
-        case .inRange: return Color(hex: 0x2F8F66)          // green
-        case .low, .high: return Color(hex: 0xCF8A1C)       // amber
-        case .criticalLow, .criticalHigh: return Color(hex: 0xD7483B) // red
-        case .qualitative: return aqua
+        case .inRange: return Color(hex: 0x2A8159)          // green (readable as text)
+        case .low, .high: return Color(hex: 0xB26C12)       // amber
+        case .criticalLow, .criticalHigh: return Color(hex: 0xC5402F) // red
+        case .qualitative: return teal
         case .indeterminate: return inkSoft
         }
     }

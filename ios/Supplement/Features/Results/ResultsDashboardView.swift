@@ -31,11 +31,16 @@ struct ResultsDashboardView: View {
             case .extracted, .confirmed:
                 ConfirmValuesView(reportId: reportId, markers: store.markers, onDone: {})
             case .error:
-                ContentUnavailableView("Couldn't read this report", systemImage: "leaf.arrow.circlepath",
-                                       description: Text("Try re-uploading a clearer scan or photo."))
-                    .foregroundStyle(Theme.inkSoft)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .aeroScreen()
+                EmptyHint(
+                    title: "Couldn't read this report",
+                    message: "Try re-uploading a clearer scan or photo.",
+                    systemImage: "leaf.arrow.circlepath",
+                    tint: Theme.amber
+                )
+                .glassCard()
+                .padding()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .aeroScreen()
             case .analyzed, .clinicalPending, .clinicalReleased:
                 analyzed
             }
@@ -70,7 +75,7 @@ struct ResultsDashboardView: View {
                         HStack(alignment: .top, spacing: 10) {
                             Image(systemName: "sparkles")
                                 .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(Theme.sage)
+                                .foregroundStyle(Theme.blue)
                             Text(summary)
                                 .font(Theme.rounded(.callout))
                                 .foregroundStyle(Theme.ink)

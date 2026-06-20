@@ -11,6 +11,15 @@ struct ProfileView: View {
     @State private var exportText: String?
     @State private var busy = false
     @State private var deleteError: String?
+    @State private var showHelp = false
+    @State private var showEditProfile = false
+
+    private let tips = [
+        TutorialStep(icon: "person.crop.circle", title: "Your account",
+                     message: "Manage your sign-in and your subscription from here."),
+        TutorialStep(icon: "lock.shield.fill", title: "Your data, your control",
+                     message: "Export a full copy of your data anytime, or permanently delete your account and everything in it."),
+    ]
 
     var body: some View {
         NavigationStack {
@@ -47,6 +56,32 @@ struct ProfileView: View {
                                     .buttonStyle(.aeroSoft)
                             }
                         }
+                    }
+
+                    // ── Health profile ───────────────────────────────────────
+                    VStack(alignment: .leading, spacing: 14) {
+                        SectionLabel("Health profile")
+                        Button { showEditProfile = true } label: {
+                            GlassCard {
+                                HStack(spacing: 12) {
+                                    Image(systemName: "heart.text.square.fill")
+                                        .foregroundStyle(Theme.sage)
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("Edit health details")
+                                            .font(Theme.rounded(.body, weight: .semibold))
+                                            .foregroundStyle(Theme.ink)
+                                        Text("Age, biological sex, medications & conditions")
+                                            .font(Theme.rounded(.footnote))
+                                            .foregroundStyle(Theme.inkSoft)
+                                    }
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .foregroundStyle(Theme.inkSoft)
+                                }
+                            }
+                        }
+                        .buttonStyle(.plain)
                     }
 
                     // ── Subscription ─────────────────────────────────────────
@@ -117,6 +152,15 @@ struct ProfileView: View {
             }
             .aeroScreen()
             .navigationTitle("Profile")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    TutorialHelpButton(replay: $showHelp)
+                }
+            }
+            .tutorial("profile", steps: tips, replay: $showHelp)
+            .sheet(isPresented: $showEditProfile) {
+                IntakeView(isEditing: true).environment(session)
+            }
             .alert("Delete everything?", isPresented: $showDeleteConfirm) {
                 Button("Delete", role: .destructive) { Task { await deleteAccount() } }
                 Button("Cancel", role: .cancel) {}

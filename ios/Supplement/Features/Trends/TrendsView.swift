@@ -44,6 +44,16 @@ final class TrendsStore {
 struct TrendsView: View {
     @State private var store = TrendsStore()
     @State private var selected: String?
+    @State private var showHelp = false
+
+    private let tips = [
+        TutorialStep(icon: "chart.xyaxis.line", title: "Track over time",
+                     message: "Each marker is plotted as you add reports, so you can see whether it's trending toward or away from your range."),
+        TutorialStep(icon: "slider.horizontal.3", title: "Pick a marker",
+                     message: "Choose any marker from the menu to see its own chart and reference band."),
+        TutorialStep(icon: "leaf.fill", title: "The shaded band",
+                     message: "The green band is your reference range — points inside it are within range."),
+    ]
 
     var body: some View {
         NavigationStack {
@@ -87,7 +97,7 @@ struct TrendsView: View {
                                                 .padding(.horizontal, 10)
                                                 .padding(.vertical, 5)
                                                 .background(Theme.tintFill, in: Capsule())
-                                                .overlay(Capsule().stroke(.white.opacity(0.5), lineWidth: 1))
+                                                .overlay(Capsule().stroke(Theme.sage.opacity(0.25), lineWidth: 1))
                                         }
                                     }
                                     chart(s)
@@ -112,7 +122,13 @@ struct TrendsView: View {
             }
             .navigationTitle("Trends")
             .aeroScreen()
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    TutorialHelpButton(replay: $showHelp)
+                }
+            }
             .task { await store.load() }
+            .tutorial("trends", steps: tips, replay: $showHelp)
         }
     }
 
@@ -122,7 +138,7 @@ struct TrendsView: View {
                 Circle()
                     .fill(Theme.tintFill)
                     .frame(width: 96, height: 96)
-                    .overlay(Circle().stroke(.white.opacity(0.6), lineWidth: 1))
+                    .overlay(Circle().stroke(Theme.sage.opacity(0.25), lineWidth: 1))
                 Image(systemName: "chart.xyaxis.line")
                     .font(.system(size: 40, weight: .semibold))
                     .foregroundStyle(Theme.sageDeep)

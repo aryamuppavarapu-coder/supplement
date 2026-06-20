@@ -5,6 +5,11 @@ import SwiftUI
 /// that choice is captured explicitly via the disclosure toggles.
 struct IntakeView: View {
     @Environment(SessionStore.self) private var session
+    @Environment(\.dismiss) private var dismiss
+
+    /// When true the form is being edited from the Profile tab (pre-filled, dismisses on save)
+    /// rather than shown as the onboarding root.
+    var isEditing = false
 
     @State private var age: Int? = nil
     @State private var sex: String = ""
@@ -15,6 +20,7 @@ struct IntakeView: View {
     @State private var willDiscloseMeds = true
     @State private var willDiscloseConditions = true
     @State private var busy = false
+    @State private var didPrefill = false
 
     var body: some View {
         NavigationStack {
@@ -40,6 +46,7 @@ struct IntakeView: View {
                                     ForEach(13...100, id: \.self) { Text("\($0)").tag(Int?.some($0)) }
                                 }
                                 .labelsHidden()
+                                .pickerStyle(.menu)
                                 .tint(Theme.sageDeep)
                             }
 
@@ -61,6 +68,7 @@ struct IntakeView: View {
                                     Text("Prefer not to say").tag("unknown")
                                 }
                                 .labelsHidden()
+                                .pickerStyle(.menu)
                                 .tint(Theme.sageDeep)
                             }
 
@@ -153,12 +161,13 @@ struct IntakeView: View {
                                 disclosedConditions: willDiscloseConditions
                             )
                             busy = false
+                            if isEditing { dismiss() }
                         }
                     } label: {
                         if busy {
                             ProgressView().tint(.white).frame(maxWidth: .infinity)
                         } else {
-                            Label("Save & continue", systemImage: "leaf.fill")
+                            Label(isEditing ? "Save changes" : "Save & continue", systemImage: "leaf.fill")
                                 .frame(maxWidth: .infinity)
                         }
                     }
@@ -172,8 +181,33 @@ struct IntakeView: View {
             .aeroScreen()
             .navigationTitle("Your health profile")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                if isEditing {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") { dismiss() }.tint(Theme.sageDeep)
+                    }
+                }
+            }
+            .onAppear { prefillIfNeeded() }
         }
         .tint(Theme.accent)
+    }
+
+    /// When editing an existing profile, populate the form once from the saved document.
+    private func prefillIfNeeded() {
+        guard isEditing, !didPrefill, let p = session.profile else { return }
+        didPrefill = true
+        age = p.profile?.age
+        let knownSex: Set<String> = ["female", "male", "intersex", "unknown"]
+        if let s = p.profile?.sex, !s.isEmpty {
+            if knownSex.contains(s) { sex = s }
+            else { sex = "other"; customSex = (s == "other") ? "" : s }
+        }
+        pregnant = p.profile?.pregnant ?? false
+        meds = Set((p.medications ?? []).compactMap { MedicationClass(rawValue: $0) })
+        conditions = Set((p.conditions ?? []).compactMap { HealthCondition(rawValue: $0) })
+        willDiscloseMeds = p.disclosedMeds ?? true
+        willDiscloseConditions = p.disclosedConditions ?? true
     }
 
     private func multiSelect<T: Identifiable & Hashable>(

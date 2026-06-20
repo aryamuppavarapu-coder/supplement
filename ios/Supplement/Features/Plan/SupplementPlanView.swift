@@ -83,10 +83,10 @@ struct SupplementPlanView: View {
 
         if shown.isEmpty {
             GlassCard {
-                ContentUnavailableView(
-                    "Nothing to suggest right now",
-                    systemImage: "leaf",
-                    description: Text("No out-of-range markers mapped to a wellness suggestion, or all were screened out for your safety.")
+                EmptyHint(
+                    title: "Nothing to suggest right now",
+                    message: "No out-of-range markers mapped to a wellness suggestion, or all were screened out for your safety.",
+                    systemImage: "leaf"
                 )
             }
         }
@@ -202,8 +202,8 @@ private struct CertBadge: View {
         Label(text, systemImage: "checkmark.seal.fill")
             .font(Theme.rounded(.caption2, weight: .semibold))
             .padding(.horizontal, 8).padding(.vertical, 4)
-            .background(Theme.tintFill, in: Capsule())
-            .foregroundStyle(Theme.sageDeep)
-            .overlay(Capsule().stroke(.white.opacity(0.5), lineWidth: 1))
+            .background(Theme.teal.opacity(0.12), in: Capsule())
+            .foregroundStyle(Theme.teal)
+            .overlay(Capsule().stroke(Theme.teal.opacity(0.3), lineWidth: 1))
     }
 }
