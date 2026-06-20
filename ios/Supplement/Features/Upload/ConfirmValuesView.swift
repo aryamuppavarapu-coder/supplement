@@ -13,54 +13,111 @@ struct ConfirmValuesView: View {
     @State private var error: String?
 
     var body: some View {
-        Form {
-            Section {
-                Text("Check these against your report and fix anything that looks off. Then we'll analyze them.")
-                    .font(.callout).foregroundStyle(.secondary)
-            }
-
-            ForEach(Array(markers.enumerated()), id: \.offset) { index, marker in
-                Section {
-                    HStack {
-                        Text(marker.nameRaw).font(.headline)
-                        Spacer()
-                        StatusChip(status: marker.computedStatus)
-                    }
-                    HStack {
-                        TextField(
-                            "Value",
-                            text: Binding(
-                                get: { editedValues[index] ?? marker.value.map { formatted($0) } ?? "" },
-                                set: { editedValues[index] = $0 }
-                            )
-                        )
-                        .keyboardType(.decimalPad)
-                        Text(marker.unitStd ?? marker.unitRaw ?? "")
-                            .foregroundStyle(.secondary)
-                    }
-                    if let range = rangeText(marker) {
-                        Text("Reference: \(range)").font(.caption).foregroundStyle(.secondary)
-                    }
-                    if marker.needsReview {
-                        ForEach(marker.reviewReasons, id: \.self) { reason in
-                            Label(reason, systemImage: "exclamationmark.triangle")
-                                .font(.caption).foregroundStyle(.orange)
+        ScrollView {
+            VStack(spacing: 18) {
+                // Intro / context card
+                GlassCard {
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "checklist")
+                            .font(.system(size: 22, weight: .semibold))
+                            .foregroundStyle(Theme.sageDeep)
+                        VStack(alignment: .leading, spacing: 6) {
+                            SectionLabel("Confirm extracted values")
+                            Text("Check these against your report and fix anything that looks off. Then we'll analyze them.")
+                                .font(Theme.rounded(.callout))
+                                .foregroundStyle(Theme.inkSoft)
                         }
                     }
                 }
-            }
 
-            if let error { Text(error).foregroundStyle(.red) }
+                // One glass card per marker
+                ForEach(Array(markers.enumerated()), id: \.offset) { index, marker in
+                    GlassCard {
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Text(marker.nameRaw)
+                                    .font(Theme.heading(18))
+                                    .foregroundStyle(Theme.ink)
+                                Spacer()
+                                StatusChip(status: marker.computedStatus)
+                            }
 
-            Section {
+                            HStack(spacing: 10) {
+                                Image(systemName: "drop.fill")
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .foregroundStyle(Theme.aqua)
+                                TextField(
+                                    "Value",
+                                    text: Binding(
+                                        get: { editedValues[index] ?? marker.value.map { formatted($0) } ?? "" },
+                                        set: { editedValues[index] = $0 }
+                                    )
+                                )
+                                .keyboardType(.decimalPad)
+                                .font(Theme.rounded(.title3, weight: .semibold))
+                                .foregroundStyle(Theme.ink)
+                                Text(marker.unitStd ?? marker.unitRaw ?? "")
+                                    .font(Theme.rounded(.callout))
+                                    .foregroundStyle(Theme.inkSoft)
+                            }
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 10)
+                            .background(.white.opacity(0.35), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .stroke(Theme.sage.opacity(0.35), lineWidth: 1)
+                            )
+
+                            if let range = rangeText(marker) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "ruler")
+                                        .font(.system(size: 12, weight: .semibold))
+                                        .foregroundStyle(Theme.sage)
+                                    Text("Reference: \(range)")
+                                        .font(Theme.rounded(.caption))
+                                        .foregroundStyle(Theme.inkSoft)
+                                }
+                            }
+
+                            if marker.needsReview {
+                                ForEach(marker.reviewReasons, id: \.self) { reason in
+                                    Label(reason, systemImage: "exclamationmark.triangle.fill")
+                                        .font(Theme.rounded(.caption, weight: .medium))
+                                        .foregroundStyle(Theme.color(for: .high))
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if let error {
+                    GlassCard {
+                        Label(error, systemImage: "exclamationmark.octagon.fill")
+                            .font(Theme.rounded(.callout, weight: .medium))
+                            .foregroundStyle(Theme.color(for: .criticalHigh))
+                    }
+                }
+
+                // Keep the medical disclaimer (SPEC §2.5)
+                DisclaimerBanner()
+
+                // Primary CTA
                 Button {
                     Task { await submit() }
                 } label: {
-                    if busy { ProgressView() } else { Text("Looks right — analyze").frame(maxWidth: .infinity) }
+                    if busy {
+                        ProgressView().tint(.white)
+                    } else {
+                        Label("Looks right — analyze", systemImage: "sparkles")
+                    }
                 }
+                .buttonStyle(.aero)
                 .disabled(busy)
             }
+            .padding(.horizontal, 18)
+            .padding(.vertical, 20)
         }
+        .aeroScreen()
         .navigationTitle("Confirm your values")
     }
 

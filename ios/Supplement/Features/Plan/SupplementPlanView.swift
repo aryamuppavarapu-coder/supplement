@@ -9,11 +9,12 @@ struct SupplementPlanView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 18) {
                 content
             }
             .padding()
         }
+        .aeroScreen()
         .navigationTitle("Your plan")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -27,7 +28,16 @@ struct SupplementPlanView: View {
                 withheld(plan.withheldReason)
             }
         } else {
-            ProgressView("Preparing your plan…")
+            GlassCard {
+                HStack(spacing: 12) {
+                    ProgressView()
+                        .tint(Theme.sageDeep)
+                    Text("Preparing your plan…")
+                        .font(Theme.rounded(.callout, weight: .medium))
+                        .foregroundStyle(Theme.inkSoft)
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+            }
         }
     }
 
@@ -35,31 +45,73 @@ struct SupplementPlanView: View {
     private func enabledContent(_ plan: SupplementPlan) -> some View {
         let shown = plan.items.filter { $0.decision != "suppress" }
 
-        Text("Food first, then optional supplements")
-            .font(.title3.bold())
-        Text("These are general wellness ideas tied to your out-of-range markers — not prescriptions. Discuss anything you're considering with your doctor or pharmacist.")
-            .font(.callout).foregroundStyle(.secondary)
+        GlassCard {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 12) {
+                    LogoMark(size: 40)
+                    VStack(alignment: .leading, spacing: 2) {
+                        SectionLabel("Your wellness plan")
+                        Text("Food first, then optional supplements")
+                            .font(Theme.heading(20))
+                            .foregroundStyle(Theme.ink)
+                    }
+                }
+
+                Label {
+                    Text("These are general wellness ideas tied to your out-of-range markers — not prescriptions. Discuss anything you're considering with your doctor or pharmacist.")
+                        .font(Theme.rounded(.callout))
+                        .foregroundStyle(Theme.inkSoft)
+                } icon: {
+                    Image(systemName: "leaf.fill")
+                        .foregroundStyle(Theme.sage)
+                }
+            }
+        }
 
         if shown.isEmpty {
-            ContentUnavailableView(
-                "Nothing to suggest right now",
-                systemImage: "leaf",
-                description: Text("No out-of-range markers mapped to a wellness suggestion, or all were screened out for your safety.")
-            )
+            GlassCard {
+                ContentUnavailableView(
+                    "Nothing to suggest right now",
+                    systemImage: "leaf",
+                    description: Text("No out-of-range markers mapped to a wellness suggestion, or all were screened out for your safety.")
+                )
+            }
         }
 
         ForEach(shown) { item in PlanItemCard(item: item) }
 
-        Text("Affiliate disclosure: some supplement links may be affiliate links. We only surface products with third-party quality testing. (⚠️ partner terms pending — SPEC §10.2.)")
-            .font(.caption2).foregroundStyle(.secondary)
+        GlassCard {
+            Label {
+                Text("Affiliate disclosure: some supplement links may be affiliate links. We only surface products with third-party quality testing. (⚠️ partner terms pending — SPEC §10.2.)")
+                    .font(Theme.rounded(.caption2))
+                    .foregroundStyle(Theme.inkSoft)
+            } icon: {
+                Image(systemName: "sparkles")
+                    .foregroundStyle(Theme.aqua)
+            }
+        }
 
         DisclaimerBanner()
     }
 
     @ViewBuilder
     private func withheld(_ reason: String?) -> some View {
-        Label("Suggestions are turned off", systemImage: "hand.raised").font(.headline)
-        Text(reason ?? "We can't safely show suggestions right now.")
+        GlassCard {
+            VStack(alignment: .leading, spacing: 12) {
+                Label {
+                    Text("Suggestions are turned off")
+                        .font(Theme.heading(20))
+                        .foregroundStyle(Theme.ink)
+                } icon: {
+                    Image(systemName: "hand.raised.fill")
+                        .foregroundStyle(Theme.sageDeep)
+                }
+
+                Text(reason ?? "We can't safely show suggestions right now.")
+                    .font(Theme.rounded(.callout))
+                    .foregroundStyle(Theme.inkSoft)
+            }
+        }
         DisclaimerBanner()
     }
 }
@@ -68,42 +120,61 @@ private struct PlanItemCard: View {
     let item: PlanItem
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text(displayName).font(.headline)
-                Spacer()
-                if item.decision == "warn" {
-                    Label("Use caution", systemImage: "exclamationmark.triangle")
-                        .font(.caption).foregroundStyle(.orange)
+        GlassCard {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Label {
+                        Text(displayName)
+                            .font(Theme.heading(18))
+                            .foregroundStyle(Theme.ink)
+                    } icon: {
+                        Image(systemName: "drop.fill")
+                            .foregroundStyle(Theme.sage)
+                    }
+                    Spacer()
+                    if item.decision == "warn" {
+                        Label("Use caution", systemImage: "exclamationmark.triangle.fill")
+                            .font(Theme.rounded(.caption, weight: .semibold))
+                            .foregroundStyle(Theme.color(for: .high))
+                            .padding(.horizontal, 8).padding(.vertical, 4)
+                            .background(Theme.color(for: .high).opacity(0.14), in: Capsule())
+                    }
                 }
-            }
 
-            if let rationale = item.rationaleText { Text(rationale).font(.callout) }
+                if let rationale = item.rationaleText {
+                    Text(rationale)
+                        .font(Theme.rounded(.callout))
+                        .foregroundStyle(Theme.ink)
+                }
 
-            if !item.foodSources.isEmpty {
-                Text("Food sources first").font(.subheadline.bold())
-                Text(item.foodSources.joined(separator: " · ")).font(.callout).foregroundStyle(.secondary)
-            }
+                if !item.foodSources.isEmpty {
+                    VStack(alignment: .leading, spacing: 4) {
+                        SectionLabel("Food sources first")
+                        Text(item.foodSources.joined(separator: " · "))
+                            .font(Theme.rounded(.callout))
+                            .foregroundStyle(Theme.inkSoft)
+                    }
+                }
 
-            if let note = item.interactionNote, !note.isEmpty {
-                Label(note, systemImage: "info.circle").font(.caption).foregroundStyle(.orange)
-            }
+                if let note = item.interactionNote, !note.isEmpty {
+                    Label(note, systemImage: "info.circle.fill")
+                        .font(Theme.rounded(.caption, weight: .medium))
+                        .foregroundStyle(Theme.color(for: .high))
+                }
 
-            HStack(spacing: 6) {
-                CertBadge("USP Verified")
-                CertBadge("NSF Certified")
-                CertBadge("Informed Sport")
-            }
+                HStack(spacing: 6) {
+                    CertBadge("USP Verified")
+                    CertBadge("NSF Certified")
+                    CertBadge("Informed Sport")
+                }
 
-            Button { /* TODO: Fullscript/affiliate deep link — ⚠️ VERIFY partner (SPEC §10.2) */ } label: {
-                Label("Discuss with your provider", systemImage: "stethoscope")
+                Button { /* TODO: Fullscript/affiliate deep link — ⚠️ VERIFY partner (SPEC §10.2) */ } label: {
+                    Label("Discuss with your provider", systemImage: "stethoscope")
+                }
+                .buttonStyle(.aeroSoft)
+                .disabled(true)
             }
-            .font(.footnote)
-            .disabled(true)
         }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12))
     }
 
     private var displayName: String {
@@ -115,10 +186,11 @@ private struct CertBadge: View {
     let text: String
     init(_ text: String) { self.text = text }
     var body: some View {
-        Text(text)
-            .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 6).padding(.vertical, 3)
-            .background(Theme.accent.opacity(0.12), in: Capsule())
-            .foregroundStyle(Theme.accent)
+        Label(text, systemImage: "checkmark.seal.fill")
+            .font(Theme.rounded(.caption2, weight: .semibold))
+            .padding(.horizontal, 8).padding(.vertical, 4)
+            .background(Theme.tintFill, in: Capsule())
+            .foregroundStyle(Theme.sageDeep)
+            .overlay(Capsule().stroke(.white.opacity(0.5), lineWidth: 1))
     }
 }

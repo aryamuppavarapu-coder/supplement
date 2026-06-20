@@ -8,42 +8,68 @@ struct ConsentView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                Text("Before we start")
-                    .font(.title.bold())
+            VStack(alignment: .leading, spacing: 20) {
+                BrandHeader(subtitle: "A quick note before we begin")
 
-                Group {
-                    bullet("Supplement gives you educational information about your lab results. It does not diagnose disease or prescribe treatment.")
-                    bullet("It explains values as above/below the typical reference range — never as a diagnosis. Always consult a licensed healthcare provider for decisions.")
-                    bullet("Your health data is encrypted, is never sold, and is never used to train AI models (SPEC §2.6).")
-                    bullet("You can export or permanently delete your data at any time from Profile.")
+                GlassCard {
+                    VStack(alignment: .leading, spacing: 16) {
+                        SectionLabel("Before we start")
+
+                        Text("Know your labs, the gentle way")
+                            .font(Theme.title(24))
+                            .foregroundStyle(Theme.ink)
+
+                        VStack(alignment: .leading, spacing: 14) {
+                            bullet("leaf.fill",
+                                   "Supplement gives you educational information about your lab results. It does not diagnose disease or prescribe treatment.")
+                            bullet("chart.bar.fill",
+                                   "It explains values as above/below the typical reference range — never as a diagnosis. Always consult a licensed healthcare provider for decisions.")
+                            bullet("lock.fill",
+                                   "Your health data is encrypted, is never sold, and is never used to train AI models (SPEC §2.6).")
+                            bullet("square.and.arrow.up.fill",
+                                   "You can export or permanently delete your data at any time from Profile.")
+                        }
+                    }
                 }
 
                 DisclaimerBanner()
 
-                Toggle(isOn: $agreed) {
-                    Text("I understand this is educational information, not medical advice or diagnosis, and I consent to the privacy terms.")
-                        .font(.callout)
+                GlassCard {
+                    Toggle(isOn: $agreed) {
+                        Text("I understand this is educational information, not medical advice or diagnosis, and I consent to the privacy terms.")
+                            .font(Theme.rounded(.callout))
+                            .foregroundStyle(Theme.ink)
+                    }
+                    .tint(Theme.sage)
                 }
-                .padding(.top, 4)
 
                 Button {
                     busy = true
                     Task { await session.recordConsent(); busy = false }
                 } label: {
-                    if busy { ProgressView() } else { Text("Agree & continue").bold().frame(maxWidth: .infinity) }
+                    if busy {
+                        ProgressView().tint(.white)
+                    } else {
+                        Label("Agree & continue", systemImage: "checkmark.seal.fill")
+                    }
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.aero)
                 .disabled(!agreed || busy)
             }
-            .padding()
+            .padding(20)
         }
+        .aeroScreen()
     }
 
-    private func bullet(_ text: String) -> some View {
-        HStack(alignment: .top, spacing: 8) {
-            Image(systemName: "checkmark.circle.fill").foregroundStyle(Theme.accent)
+    private func bullet(_ symbol: String, _ text: String) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: symbol)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(Theme.sageDeep)
+                .frame(width: 24)
             Text(text)
+                .font(Theme.rounded(.subheadline))
+                .foregroundStyle(Theme.inkSoft)
         }
     }
 }

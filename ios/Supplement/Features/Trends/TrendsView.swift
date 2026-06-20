@@ -45,23 +45,96 @@ struct TrendsView: View {
         NavigationStack {
             Group {
                 if store.series.isEmpty {
-                    ContentUnavailableView("No trends yet", systemImage: "chart.xyaxis.line",
-                        description: Text("Upload more than one report to see how your markers change over time."))
+                    emptyState
                 } else {
                     List {
-                        Picker("Marker", selection: Binding(get: { selected ?? store.series.keys.sorted().first ?? "" },
-                                                            set: { selected = $0 })) {
-                            ForEach(store.series.keys.sorted(), id: \.self) { Text(display($0)).tag($0) }
+                        Section {
+                            VStack(alignment: .leading, spacing: 14) {
+                                SectionLabel("Choose a marker")
+                                Picker("Marker", selection: Binding(get: { selected ?? store.series.keys.sorted().first ?? "" },
+                                                                    set: { selected = $0 })) {
+                                    ForEach(store.series.keys.sorted(), id: \.self) { Text(display($0)).tag($0) }
+                                }
+                                .pickerStyle(.menu)
+                                .tint(Theme.sageDeep)
+                                .font(Theme.rounded(.body, weight: .medium))
+                            }
+                            .glassCard()
                         }
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+
                         if let key = selected ?? store.series.keys.sorted().first, let s = store.series[key] {
-                            Section(display(key)) { chart(s) }
+                            Section {
+                                VStack(alignment: .leading, spacing: 14) {
+                                    HStack(spacing: 8) {
+                                        Image(systemName: "chart.xyaxis.line")
+                                            .font(.system(size: 18, weight: .semibold))
+                                            .foregroundStyle(Theme.sageDeep)
+                                        Text(display(key))
+                                            .font(Theme.heading(20))
+                                            .foregroundStyle(Theme.ink)
+                                        Spacer()
+                                        if let unit = s.unit, !unit.isEmpty {
+                                            Text(unit)
+                                                .font(Theme.rounded(.caption, weight: .medium))
+                                                .foregroundStyle(Theme.inkSoft)
+                                                .padding(.horizontal, 10)
+                                                .padding(.vertical, 5)
+                                                .background(Theme.tintFill, in: Capsule())
+                                                .overlay(Capsule().stroke(.white.opacity(0.5), lineWidth: 1))
+                                        }
+                                    }
+                                    chart(s)
+                                    HStack(spacing: 8) {
+                                        Image(systemName: "leaf.fill")
+                                            .font(.system(size: 12))
+                                            .foregroundStyle(Theme.sage)
+                                        Text("Shaded band shows your reference range.")
+                                            .font(Theme.rounded(.footnote))
+                                            .foregroundStyle(Theme.inkSoft)
+                                    }
+                                }
+                                .glassCard()
+                            }
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                         }
                     }
+                    .listStyle(.plain)
                 }
             }
             .navigationTitle("Trends")
+            .aeroScreen()
             .task { await store.load() }
         }
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: 20) {
+            ZStack {
+                Circle()
+                    .fill(Theme.tintFill)
+                    .frame(width: 96, height: 96)
+                    .overlay(Circle().stroke(.white.opacity(0.6), lineWidth: 1))
+                Image(systemName: "chart.xyaxis.line")
+                    .font(.system(size: 40, weight: .semibold))
+                    .foregroundStyle(Theme.sageDeep)
+            }
+            Text("No trends yet")
+                .font(Theme.title(24))
+                .foregroundStyle(Theme.ink)
+            Text("Upload more than one report to see how your markers change over time.")
+                .font(Theme.rounded(.callout))
+                .foregroundStyle(Theme.inkSoft)
+                .multilineTextAlignment(.center)
+        }
+        .padding(28)
+        .glassCard()
+        .padding(.horizontal, 24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     @ViewBuilder
@@ -69,11 +142,30 @@ struct TrendsView: View {
         Chart {
             if let lo = s.refLow, let hi = s.refHigh {
                 RectangleMark(yStart: .value("low", lo), yEnd: .value("high", hi))
-                    .foregroundStyle(.green.opacity(0.12))
+                    .foregroundStyle(Theme.sage.opacity(0.18))
             }
             ForEach(s.points) { p in
                 LineMark(x: .value("Date", p.date), y: .value("Value", p.value))
+                    .foregroundStyle(Theme.sageDeep)
+                    .lineStyle(StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
+                    .interpolationMethod(.catmullRom)
                 PointMark(x: .value("Date", p.date), y: .value("Value", p.value))
+                    .foregroundStyle(Theme.sage)
+                    .symbolSize(70)
+            }
+        }
+        .chartXAxis {
+            AxisMarks { _ in
+                AxisGridLine().foregroundStyle(Theme.sage.opacity(0.18))
+                AxisTick().foregroundStyle(Theme.sage.opacity(0.35))
+                AxisValueLabel().foregroundStyle(Theme.inkSoft)
+            }
+        }
+        .chartYAxis {
+            AxisMarks { _ in
+                AxisGridLine().foregroundStyle(Theme.sage.opacity(0.18))
+                AxisTick().foregroundStyle(Theme.sage.opacity(0.35))
+                AxisValueLabel().foregroundStyle(Theme.inkSoft)
             }
         }
         .frame(height: 240)

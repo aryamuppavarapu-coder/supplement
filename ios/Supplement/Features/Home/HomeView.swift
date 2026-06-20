@@ -8,50 +8,116 @@ struct HomeView: View {
         NavigationStack {
             List {
                 if store.reports.isEmpty {
-                    ContentUnavailableView(
-                        "No reports yet",
-                        systemImage: "doc.text.magnifyingglass",
-                        description: Text("Upload a lab report to see a plain-language breakdown.")
-                    )
+                    GlassCard {
+                        VStack(spacing: 14) {
+                            ZStack {
+                                Circle()
+                                    .fill(Theme.tintFill)
+                                    .frame(width: 84, height: 84)
+                                Image(systemName: "doc.text.magnifyingglass")
+                                    .font(.system(size: 34, weight: .semibold))
+                                    .foregroundStyle(Theme.sageDeep)
+                            }
+                            Text("No reports yet")
+                                .font(Theme.heading(20))
+                                .foregroundStyle(Theme.ink)
+                            Text("Upload a lab report to see a plain-language breakdown.")
+                                .font(Theme.rounded(.subheadline))
+                                .foregroundStyle(Theme.inkSoft)
+                                .multilineTextAlignment(.center)
+                            Button { showUpload = true } label: {
+                                Label("Upload a report", systemImage: "tray.and.arrow.up.fill")
+                            }
+                            .buttonStyle(.aero)
+                            .padding(.top, 4)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                    }
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                 }
+
+                if !store.reports.isEmpty {
+                    SectionLabel("Your reports")
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 12, leading: 20, bottom: 2, trailing: 16))
+                }
+
                 ForEach(store.reports) { report in
                     NavigationLink {
                         ResultsDashboardView(reportId: report.id)
                     } label: {
                         ReportRow(report: report)
                     }
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                 }
                 .onDelete { offsets in
                     let ids = offsets.map { store.reports[$0].id }
                     Task { for id in ids { try? await ReportService.deleteReport(reportId: id) } }
                 }
             }
+            .listStyle(.plain)
+            .aeroScreen()
             .navigationTitle(Theme.appName)
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Wordmark(size: 22)
+                }
                 ToolbarItem(placement: .primaryAction) {
-                    Button { showUpload = true } label: { Label("Upload", systemImage: "plus") }
+                    Button { showUpload = true } label: {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.system(size: 26, weight: .semibold))
+                            .symbolRenderingMode(.palette)
+                            .foregroundStyle(.white, Theme.sageDeep)
+                            .shadow(color: Theme.sageDeep.opacity(0.3), radius: 4, y: 2)
+                            .accessibilityLabel("Upload")
+                    }
                 }
             }
             .sheet(isPresented: $showUpload) { UploadView() }
             .onAppear { store.start() }
         }
+        .tint(Theme.accent)
     }
 }
 
 private struct ReportRow: View {
     let report: Report
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Text(report.labName ?? "Lab report").font(.headline)
-                Spacer()
-                if report.hasCritical {
-                    Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.red)
+        GlassCard {
+            HStack(spacing: 14) {
+                ZStack {
+                    Circle()
+                        .fill(report.hasCritical
+                              ? AnyShapeStyle(Color(hex: 0xE2574C).opacity(0.18))
+                              : AnyShapeStyle(Theme.tintFill))
+                        .frame(width: 46, height: 46)
+                    Image(systemName: report.hasCritical ? "exclamationmark.triangle.fill" : "drop.fill")
+                        .font(.system(size: 19, weight: .semibold))
+                        .foregroundStyle(report.hasCritical ? Color(hex: 0xE2574C) : Theme.sageDeep)
                 }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(report.labName ?? "Lab report")
+                        .font(Theme.rounded(.headline, weight: .semibold))
+                        .foregroundStyle(Theme.ink)
+                    Text(statusText)
+                        .font(Theme.rounded(.subheadline))
+                        .foregroundStyle(Theme.inkSoft)
+                }
+
+                Spacer(minLength: 0)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(Theme.sage.opacity(0.7))
             }
-            Text(statusText).font(.caption).foregroundStyle(.secondary)
         }
-        .padding(.vertical, 2)
     }
 
     private var statusText: String {

@@ -17,43 +17,113 @@ struct IntakeView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section("About you") {
-                    Picker("Age", selection: $age) {
-                        ForEach(13...100, id: \.self) { Text("\($0)").tag($0) }
-                    }
-                    Picker("Biological sex", selection: $sex) {
-                        Text("Female").tag("female")
-                        Text("Male").tag("male")
-                        Text("Intersex").tag("intersex")
-                        Text("Prefer not to say").tag("unknown")
-                    }
-                    if sex == "female" {
-                        Toggle("Currently pregnant", isOn: $pregnant)
-                    }
-                }
+            ScrollView {
+                VStack(spacing: 18) {
+                    BrandHeader(subtitle: "A few details help us screen suggestions for your safety.")
+                        .padding(.top, 8)
 
-                Section {
-                    Toggle("I'll share my medications", isOn: $willDiscloseMeds)
-                    if willDiscloseMeds {
-                        multiSelect(MedicationClass.allCases, selection: $meds) { $0.display }
-                    }
-                } header: {
-                    Text("Medications")
-                } footer: {
-                    Text("Used only to screen supplement suggestions for safety. If you skip this, we'll withhold suggestions and tell you why.")
-                }
+                    // ── About you ──────────────────────────────────────────────
+                    GlassCard {
+                        VStack(alignment: .leading, spacing: 16) {
+                            SectionLabel("About you")
 
-                Section {
-                    Toggle("I'll share my conditions", isOn: $willDiscloseConditions)
-                    if willDiscloseConditions {
-                        multiSelect(HealthCondition.allCases, selection: $conditions) { $0.display }
-                    }
-                } header: {
-                    Text("Diagnosed conditions")
-                }
+                            HStack {
+                                Label("Age", systemImage: "calendar")
+                                    .labelStyle(.titleAndIcon)
+                                    .font(Theme.rounded(.body, weight: .medium))
+                                    .foregroundStyle(Theme.ink)
+                                    .tint(Theme.sage)
+                                Spacer()
+                                Picker("Age", selection: $age) {
+                                    ForEach(13...100, id: \.self) { Text("\($0)").tag($0) }
+                                }
+                                .labelsHidden()
+                                .tint(Theme.sageDeep)
+                            }
 
-                Section {
+                            Divider().overlay(Theme.sage.opacity(0.25))
+
+                            HStack {
+                                Label("Biological sex", systemImage: "person.fill")
+                                    .labelStyle(.titleAndIcon)
+                                    .font(Theme.rounded(.body, weight: .medium))
+                                    .foregroundStyle(Theme.ink)
+                                    .tint(Theme.sage)
+                                Spacer()
+                                Picker("Biological sex", selection: $sex) {
+                                    Text("Female").tag("female")
+                                    Text("Male").tag("male")
+                                    Text("Intersex").tag("intersex")
+                                    Text("Prefer not to say").tag("unknown")
+                                }
+                                .labelsHidden()
+                                .tint(Theme.sageDeep)
+                            }
+
+                            if sex == "female" {
+                                Divider().overlay(Theme.sage.opacity(0.25))
+                                Toggle(isOn: $pregnant) {
+                                    Label("Currently pregnant", systemImage: "heart.fill")
+                                        .labelStyle(.titleAndIcon)
+                                        .font(Theme.rounded(.body, weight: .medium))
+                                        .foregroundStyle(Theme.ink)
+                                        .tint(Theme.sage)
+                                }
+                                .tint(Theme.sage)
+                            }
+                        }
+                    }
+
+                    // ── Medications ────────────────────────────────────────────
+                    GlassCard {
+                        VStack(alignment: .leading, spacing: 14) {
+                            SectionLabel("Medications")
+
+                            Toggle(isOn: $willDiscloseMeds) {
+                                Label("I'll share my medications", systemImage: "pills.fill")
+                                    .labelStyle(.titleAndIcon)
+                                    .font(Theme.rounded(.body, weight: .medium))
+                                    .foregroundStyle(Theme.ink)
+                                    .tint(Theme.sage)
+                            }
+                            .tint(Theme.sage)
+
+                            if willDiscloseMeds {
+                                Divider().overlay(Theme.sage.opacity(0.25))
+                                multiSelect(MedicationClass.allCases, selection: $meds) { $0.display }
+                            }
+
+                            Text("Used only to screen supplement suggestions for safety. If you skip this, we'll withhold suggestions and tell you why.")
+                                .font(Theme.rounded(.footnote))
+                                .foregroundStyle(Theme.inkSoft)
+                        }
+                    }
+
+                    // ── Conditions ─────────────────────────────────────────────
+                    GlassCard {
+                        VStack(alignment: .leading, spacing: 14) {
+                            SectionLabel("Diagnosed conditions")
+
+                            Toggle(isOn: $willDiscloseConditions) {
+                                Label("I'll share my conditions", systemImage: "cross.case.fill")
+                                    .labelStyle(.titleAndIcon)
+                                    .font(Theme.rounded(.body, weight: .medium))
+                                    .foregroundStyle(Theme.ink)
+                                    .tint(Theme.sage)
+                            }
+                            .tint(Theme.sage)
+
+                            if willDiscloseConditions {
+                                Divider().overlay(Theme.sage.opacity(0.25))
+                                multiSelect(HealthCondition.allCases, selection: $conditions) { $0.display }
+                            }
+                        }
+                    }
+
+                    // Persistent safety disclaimer (SPEC §2.5).
+                    DisclaimerBanner()
+
+                    // ── Save ───────────────────────────────────────────────────
                     Button {
                         busy = true
                         Task {
@@ -67,30 +137,60 @@ struct IntakeView: View {
                             busy = false
                         }
                     } label: {
-                        if busy { ProgressView() } else { Text("Save & continue").frame(maxWidth: .infinity) }
+                        if busy {
+                            ProgressView().tint(.white).frame(maxWidth: .infinity)
+                        } else {
+                            Label("Save & continue", systemImage: "leaf.fill")
+                                .frame(maxWidth: .infinity)
+                        }
                     }
+                    .buttonStyle(.aero)
                     .disabled(busy)
+                    .padding(.top, 2)
                 }
+                .padding(.horizontal, 18)
+                .padding(.bottom, 28)
             }
+            .aeroScreen()
             .navigationTitle("Your health profile")
+            .navigationBarTitleDisplayMode(.inline)
         }
+        .tint(Theme.accent)
     }
 
     private func multiSelect<T: Identifiable & Hashable>(
         _ items: [T], selection: Binding<Set<T>>, label: @escaping (T) -> String
     ) -> some View {
-        ForEach(items) { item in
-            Button {
-                if selection.wrappedValue.contains(item) { selection.wrappedValue.remove(item) }
-                else { selection.wrappedValue.insert(item) }
-            } label: {
-                HStack {
-                    Text(label(item)).foregroundStyle(.primary)
-                    Spacer()
-                    if selection.wrappedValue.contains(item) {
-                        Image(systemName: "checkmark").foregroundStyle(Theme.accent)
+        VStack(spacing: 8) {
+            ForEach(items) { item in
+                let isOn = selection.wrappedValue.contains(item)
+                Button {
+                    if selection.wrappedValue.contains(item) { selection.wrappedValue.remove(item) }
+                    else { selection.wrappedValue.insert(item) }
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: isOn ? "checkmark.circle.fill" : "circle")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundStyle(isOn ? Theme.sageDeep : Theme.sage.opacity(0.5))
+                        Text(label(item))
+                            .font(Theme.rounded(.body, weight: isOn ? .semibold : .regular))
+                            .foregroundStyle(Theme.ink)
+                            .multilineTextAlignment(.leading)
+                        Spacer(minLength: 0)
                     }
+                    .padding(.vertical, 10)
+                    .padding(.horizontal, 14)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .fill(isOn ? Theme.tintFill : LinearGradient(colors: [.white.opacity(0.35), .white.opacity(0.15)], startPoint: .top, endPoint: .bottom))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .stroke(isOn ? Theme.sage.opacity(0.5) : .white.opacity(0.4), lineWidth: 1)
+                    )
                 }
+                .buttonStyle(.plain)
             }
         }
     }

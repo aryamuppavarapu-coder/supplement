@@ -32,25 +32,83 @@ struct DoctorDirectoryView: View {
             List {
                 if store.doctors.isEmpty {
                     ContentUnavailableView("No practitioners listed yet", systemImage: "stethoscope")
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
                 }
                 ForEach(store.doctors) { doc in
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack {
-                            Text(doc.name).font(.headline)
-                            if doc.sponsored {
-                                Text("Sponsored")
-                                    .font(.caption2.bold())
-                                    .padding(.horizontal, 6).padding(.vertical, 2)
-                                    .background(.yellow.opacity(0.3), in: Capsule())
-                            }
-                        }
-                        Text("\(doc.specialty) · \(doc.location)").font(.subheadline).foregroundStyle(.secondary)
-                        if let bio = doc.bio { Text(bio).font(.caption).foregroundStyle(.secondary) }
-                    }
+                    DoctorRow(doc: doc)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                 }
             }
+            .listStyle(.plain)
             .navigationTitle("Find a provider")
+            .aeroScreen()
             .task { await store.load() }
         }
+    }
+}
+
+/// One frosted, glossy provider card.
+private struct DoctorRow: View {
+    let doc: Doctor
+
+    var body: some View {
+        GlassCard {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(alignment: .top, spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .fill(Theme.tintFill)
+                            .frame(width: 44, height: 44)
+                        Image(systemName: "stethoscope")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundStyle(Theme.sageDeep)
+                    }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 8) {
+                            Text(doc.name)
+                                .font(Theme.heading(18))
+                                .foregroundStyle(Theme.ink)
+                            if doc.sponsored {
+                                SponsoredBadge()
+                            }
+                        }
+                        Label {
+                            Text("\(doc.specialty) · \(doc.location)")
+                                .font(Theme.rounded(.subheadline))
+                                .foregroundStyle(Theme.inkSoft)
+                        } icon: {
+                            Image(systemName: "leaf.fill")
+                                .font(.caption)
+                                .foregroundStyle(Theme.sage)
+                        }
+                    }
+                    Spacer(minLength: 0)
+                }
+
+                if let bio = doc.bio {
+                    Text(bio)
+                        .font(Theme.rounded(.footnote))
+                        .foregroundStyle(Theme.inkSoft)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+    }
+}
+
+/// Clearly-labeled "Sponsored" chip (SPEC §10.3 — disclosed listing, always visible).
+private struct SponsoredBadge: View {
+    var body: some View {
+        Text("Sponsored")
+            .font(.system(.caption2, design: .rounded).weight(.bold))
+            .foregroundStyle(Theme.sageDeep)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(Theme.tintFill, in: Capsule())
+            .overlay(Capsule().stroke(.white.opacity(0.5), lineWidth: 1))
     }
 }

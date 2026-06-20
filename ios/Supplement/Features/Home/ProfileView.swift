@@ -14,35 +14,108 @@ struct ProfileView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section("Account") {
-                    LabeledContent("Email", value: Auth.auth().currentUser?.email ?? "—")
-                    Button("Sign out") { session.signOut() }
-                }
-
-                Section("Subscription") {
-                    NavigationLink("Manage plan") { PaywallView() }
-                }
-
-                Section {
-                    Button {
-                        Task { await exportData() }
-                    } label: {
-                        if busy { ProgressView() } else { Text("Export my data") }
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Brand lockup
+                    VStack(spacing: 12) {
+                        LogoMark(size: 66)
+                        Wordmark(size: 26)
                     }
-                    Button("Delete my account & data", role: .destructive) {
-                        showDeleteConfirm = true
-                    }
-                } header: {
-                    Text("Privacy")
-                } footer: {
-                    Text("Export gives you a copy of your data. Delete permanently removes your profile, reports, and uploaded files.")
-                }
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 8)
 
-                Section {
+                    // ── Account ──────────────────────────────────────────────
+                    VStack(alignment: .leading, spacing: 14) {
+                        SectionLabel("Account")
+                        GlassCard {
+                            VStack(alignment: .leading, spacing: 16) {
+                                HStack(spacing: 12) {
+                                    Image(systemName: "envelope.fill")
+                                        .foregroundStyle(Theme.sage)
+                                    Text("Email")
+                                        .font(Theme.rounded(.subheadline, weight: .medium))
+                                        .foregroundStyle(Theme.inkSoft)
+                                    Spacer()
+                                    Text(Auth.auth().currentUser?.email ?? "—")
+                                        .font(Theme.rounded(.subheadline, weight: .semibold))
+                                        .foregroundStyle(Theme.ink)
+                                }
+
+                                Divider().overlay(Theme.sage.opacity(0.25))
+
+                                Button("Sign out") { session.signOut() }
+                                    .buttonStyle(.aeroSoft)
+                            }
+                        }
+                    }
+
+                    // ── Subscription ─────────────────────────────────────────
+                    VStack(alignment: .leading, spacing: 14) {
+                        SectionLabel("Subscription")
+                        NavigationLink {
+                            PaywallView()
+                        } label: {
+                            GlassCard {
+                                HStack(spacing: 12) {
+                                    Image(systemName: "sparkles")
+                                        .foregroundStyle(Theme.sageDeep)
+                                    Text("Manage plan")
+                                        .font(Theme.rounded(.body, weight: .semibold))
+                                        .foregroundStyle(Theme.ink)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .foregroundStyle(Theme.inkSoft)
+                                }
+                            }
+                        }
+                        .buttonStyle(.plain)
+                    }
+
+                    // ── Privacy ──────────────────────────────────────────────
+                    VStack(alignment: .leading, spacing: 14) {
+                        SectionLabel("Privacy")
+                        GlassCard {
+                            VStack(alignment: .leading, spacing: 16) {
+                                Button {
+                                    Task { await exportData() }
+                                } label: {
+                                    if busy {
+                                        ProgressView()
+                                            .frame(maxWidth: .infinity)
+                                    } else {
+                                        Label("Export my data", systemImage: "square.and.arrow.up")
+                                    }
+                                }
+                                .buttonStyle(.aeroSoft)
+                                .disabled(busy)
+
+                                Button {
+                                    showDeleteConfirm = true
+                                } label: {
+                                    Label("Delete my account & data", systemImage: "trash")
+                                        .foregroundStyle(Theme.color(for: .criticalHigh))
+                                }
+                                .buttonStyle(.aeroSoft)
+
+                                HStack(alignment: .top, spacing: 8) {
+                                    Image(systemName: "drop.fill")
+                                        .font(.system(size: 12))
+                                        .foregroundStyle(Theme.aqua)
+                                    Text("Export gives you a copy of your data. Delete permanently removes your profile, reports, and uploaded files.")
+                                        .font(Theme.rounded(.footnote))
+                                        .foregroundStyle(Theme.inkSoft)
+                                }
+                            }
+                        }
+                    }
+
                     DisclaimerBanner()
                 }
+                .padding(.horizontal, 18)
+                .padding(.bottom, 28)
             }
+            .aeroScreen()
             .navigationTitle("Profile")
             .alert("Delete everything?", isPresented: $showDeleteConfirm) {
                 Button("Delete", role: .destructive) { Task { await deleteAccount() } }
@@ -57,8 +130,17 @@ struct ProfileView: View {
             }
             .sheet(item: Binding(get: { exportText.map { ExportPayload(text: $0) } }, set: { _ in exportText = nil })) { payload in
                 NavigationStack {
-                    ScrollView { Text(payload.text).font(.system(.footnote, design: .monospaced)).padding() }
-                        .navigationTitle("Your data")
+                    ScrollView {
+                        Text(payload.text)
+                            .font(.system(.footnote, design: .monospaced))
+                            .foregroundStyle(Theme.ink)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding()
+                            .glassCard()
+                            .padding()
+                    }
+                    .aeroScreen()
+                    .navigationTitle("Your data")
                 }
             }
         }

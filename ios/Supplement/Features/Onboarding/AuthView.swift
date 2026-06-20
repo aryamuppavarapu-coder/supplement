@@ -79,57 +79,108 @@ struct AuthView: View {
     @State private var vm = AuthViewModel()
 
     var body: some View {
-        VStack(spacing: 20) {
-            Spacer()
-            Text(Theme.appName)
-                .font(.largeTitle.bold())
-            Text("Understand your lab results — in plain language.")
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
+        ScrollView {
+            VStack(spacing: 24) {
+                Spacer(minLength: 24)
 
-            VStack(spacing: 12) {
-                TextField("Email", text: $vm.email)
-                    .textContentType(.emailAddress)
-                    .keyboardType(.emailAddress)
-                    .textInputAutocapitalization(.never)
-                SecureField("Password", text: $vm.password)
-                    .textContentType(vm.isSignUp ? .newPassword : .password)
+                BrandHeader(subtitle: "Understand your lab results — in plain language.")
+
+                GlassCard(padding: 20) {
+                    VStack(spacing: 18) {
+                        VStack(spacing: 12) {
+                            HStack(spacing: 10) {
+                                Image(systemName: "envelope.fill")
+                                    .foregroundStyle(Theme.sage)
+                                TextField("Email", text: $vm.email)
+                                    .textContentType(.emailAddress)
+                                    .keyboardType(.emailAddress)
+                                    .textInputAutocapitalization(.never)
+                                    .font(Theme.rounded(.body))
+                                    .foregroundStyle(Theme.ink)
+                            }
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 14)
+                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Theme.sage.opacity(0.35), lineWidth: 1))
+
+                            HStack(spacing: 10) {
+                                Image(systemName: "lock.fill")
+                                    .foregroundStyle(Theme.sage)
+                                SecureField("Password", text: $vm.password)
+                                    .textContentType(vm.isSignUp ? .newPassword : .password)
+                                    .font(Theme.rounded(.body))
+                                    .foregroundStyle(Theme.ink)
+                            }
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 14)
+                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Theme.sage.opacity(0.35), lineWidth: 1))
+                        }
+
+                        Button {
+                            Task { await vm.submitEmail() }
+                        } label: {
+                            if vm.busy {
+                                ProgressView().tint(.white)
+                            } else {
+                                Text(vm.isSignUp ? "Create account" : "Sign in")
+                            }
+                        }
+                        .buttonStyle(.aero)
+                        .disabled(vm.busy)
+
+                        Button(vm.isSignUp ? "Have an account? Sign in" : "New here? Create an account") {
+                            vm.isSignUp.toggle()
+                        }
+                        .font(Theme.rounded(.footnote, weight: .medium))
+                        .foregroundStyle(Theme.sageDeep)
+
+                        HStack(spacing: 12) {
+                            Rectangle().fill(Theme.sage.opacity(0.3)).frame(height: 1)
+                            Text("or")
+                                .font(Theme.rounded(.footnote))
+                                .foregroundStyle(Theme.inkSoft)
+                            Rectangle().fill(Theme.sage.opacity(0.3)).frame(height: 1)
+                        }
+
+                        SignInWithAppleButton(.signIn) { request in
+                            vm.configure(request)
+                        } onCompletion: { result in
+                            Task { await vm.handle(result) }
+                        }
+                        .signInWithAppleButtonStyle(.black)
+                        .frame(height: 48)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+
+                        // NOTE: Google sign-in (SPEC §3.1) needs the GoogleSignIn SPM package + a URL
+                        // scheme; add it as a follow-up. Email + Apple are wired up here.
+
+                        if let error = vm.error {
+                            HStack(alignment: .top, spacing: 8) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundStyle(Theme.color(for: .criticalHigh))
+                                Text(error)
+                                    .font(Theme.rounded(.footnote))
+                                    .foregroundStyle(Theme.color(for: .criticalHigh))
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                    }
+                }
+
+                HStack(alignment: .top, spacing: 8) {
+                    Image(systemName: "leaf.circle.fill").foregroundStyle(Theme.sage)
+                    Text("By continuing you agree this app provides educational information, not medical advice.")
+                        .font(Theme.rounded(.footnote))
+                }
+                .foregroundStyle(Theme.inkSoft)
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                Spacer(minLength: 24)
             }
-            .textFieldStyle(.roundedBorder)
-
-            Button {
-                Task { await vm.submitEmail() }
-            } label: {
-                if vm.busy { ProgressView() } else { Text(vm.isSignUp ? "Create account" : "Sign in").bold() }
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(vm.busy)
-
-            Button(vm.isSignUp ? "Have an account? Sign in" : "New here? Create an account") {
-                vm.isSignUp.toggle()
-            }
-            .font(.footnote)
-
-            SignInWithAppleButton(.signIn) { request in
-                vm.configure(request)
-            } onCompletion: { result in
-                Task { await vm.handle(result) }
-            }
-            .signInWithAppleButtonStyle(.black)
-            .frame(height: 48)
-
-            // NOTE: Google sign-in (SPEC §3.1) needs the GoogleSignIn SPM package + a URL
-            // scheme; add it as a follow-up. Email + Apple are wired up here.
-
-            if let error = vm.error {
-                Text(error).font(.footnote).foregroundStyle(.red)
-            }
-            Spacer()
-            Text("By continuing you agree this app provides educational information, not medical advice.")
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
+            .padding(20)
         }
-        .padding()
+        .aeroScreen()
     }
 }

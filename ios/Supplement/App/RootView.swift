@@ -5,21 +5,38 @@ struct RootView: View {
     @Environment(SessionStore.self) private var session
 
     var body: some View {
-        Group {
-            switch session.phase {
-            case .loading:
-                ProgressView("Loading…")
-            case .signedOut:
-                AuthView()
-            case .needsConsent:
-                ConsentView()
-            case .needsIntake:
-                IntakeView()
-            case .ready:
-                MainTabView()
+        ZStack {
+            AeroBackground()
+            Group {
+                switch session.phase {
+                case .loading:
+                    LoadingView()
+                case .signedOut:
+                    AuthView()
+                case .needsConsent:
+                    ConsentView()
+                case .needsIntake:
+                    IntakeView()
+                case .ready:
+                    MainTabView()
+                }
             }
         }
+        .tint(Theme.accent)
         .task { await session.start() }
+    }
+}
+
+private struct LoadingView: View {
+    var body: some View {
+        VStack(spacing: 20) {
+            LogoMark(size: 86)
+            ProgressView()
+                .tint(Theme.sageDeep)
+            Text("Getting things ready…")
+                .font(Theme.rounded(.subheadline))
+                .foregroundStyle(Theme.inkSoft)
+        }
     }
 }
 
@@ -36,5 +53,6 @@ struct MainTabView: View {
             ProfileView()
                 .tabItem { Label("Profile", systemImage: "person.crop.circle") }
         }
+        .tint(Theme.sageDeep)
     }
 }
