@@ -12,7 +12,7 @@ options:
 settings:
   base:
     MARKETING_VERSION: "0.1.0"
-    CURRENT_PROJECT_VERSION: "8"
+    CURRENT_PROJECT_VERSION: "9"
     SWIFT_VERSION: "5.10"
     TARGETED_DEVICE_FAMILY: "1" # iPhone
     CODE_SIGN_STYLE: Manual
@@ -38,6 +38,10 @@ targets:
         CFBundleDisplayName: Supplement
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        # Health-data privacy (SPEC §2.5/§2.6): no Firebase Analytics/Crashlytics auto-collection.
+        # Telemetry stays off until explicitly enabled behind consent for non-health events only.
+        FirebaseAutomaticDataCollectionEnabled: false
+        FIREBASE_ANALYTICS_COLLECTION_ENABLED: false
         UILaunchScreen:
           UIColorName: ""
         UISupportedInterfaceOrientations:

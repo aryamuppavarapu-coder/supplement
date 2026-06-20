@@ -18,6 +18,15 @@ These are baked into AI system prompts, UI copy, and pipeline logic. **Do not we
 
 Anything marked **⚠️ VERIFY** in the spec (clinical tables in `/config`, regulatory/legal framing, affiliate terms) must be populated/confirmed by a qualified human (clinician, pharmacist, attorney) before that code path ships. **Use clearly-labeled placeholders until then; never invent the values.** The safety engine treats unverified config as fail-safe: supplement suggestions are withheld when the interaction/critical tables are not verified.
 
+### 🚫 LAUNCH BLOCKER — `ALLOW_UNPROVENANCED_CONFIG`
+
+`functions/.env` currently sets `ALLOW_UNPROVENANCED_CONFIG=true`. This is a **dev/demo-only** flag that lets the engine honor the ILLUSTRATIVE `defaultSafetyConfig.ts` (which ships `verified: true` with `reviewedBy/reviewedAt: null`) so the supplement feature is functional before real tables exist. **It bypasses the §6/§12 fail-safe.** Before ANY real-patient launch you MUST:
+1. Replace `/config/*.json` (or the embedded default) with clinician-reviewed tables that have populated `reviewedBy`/`reviewedAt`.
+2. Remove `ALLOW_UNPROVENANCED_CONFIG` from the deployed functions environment.
+3. Set `APP_ENV=production` — `safetyConfig.ts` now hard-throws if the bypass flag is ever combined with `APP_ENV=production` (defense-in-depth), so a production deploy cannot silently ship illustrative tables.
+
+Until then this flag must never be set with `APP_ENV=production`, and the app is **not** cleared for real users.
+
 ## Build order (SPEC §11)
 
 Build Tier 1 (Milestones 1→2→3) fully before the Tier 2 clinical layer. Do not enable any patient-facing clinical output until every §14 prerequisite exists. Tier 2 plumbing may be written in parallel but stays disabled.

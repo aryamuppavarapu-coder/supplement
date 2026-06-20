@@ -16,6 +16,7 @@ struct SupplementPlanView: View {
         guard let plan, plan.enabled else { return [] }
         return plan.items.filter { $0.decision != "suppress" }
     }
+    private var suppressedCount: Int { plan?.items.filter { $0.decision == "suppress" }.count ?? 0 }
 
     var body: some View {
         ScrollView {
@@ -64,8 +65,21 @@ struct SupplementPlanView: View {
             }
         }
 
-        // Nothing at all to show (no out-of-range markers we have ideas for, none screened).
-        if generalTips.isEmpty && screenedItems.isEmpty && (plan?.enabled ?? false) {
+        // All candidate supplements were screened out by interaction screening (§2.4 transparency).
+        if (plan?.enabled ?? false) && screenedItems.isEmpty && suppressedCount > 0 {
+            GlassCard(cornerRadius: 16, padding: 14) {
+                Label {
+                    Text("Some supplement ideas were screened out based on the medications or conditions you shared — that's for your safety. Talk with your doctor or pharmacist about options.")
+                        .font(Theme.rounded(.footnote, weight: .medium))
+                        .foregroundStyle(Theme.ink)
+                } icon: {
+                    Image(systemName: "hand.raised.fill").foregroundStyle(Theme.sageDeep)
+                }
+            }
+        }
+
+        // Nothing at all to show (no out-of-range markers we have ideas for, nothing screened in or out).
+        if generalTips.isEmpty && screenedItems.isEmpty && suppressedCount == 0 && (plan?.enabled ?? false) {
             GlassCard {
                 EmptyHint(
                     title: "Everything looks on track",
@@ -158,15 +172,17 @@ private struct GeneralTipCard: View {
     let tip: GeneralTip
 
     var body: some View {
-        let accent = tip.isHigh ? Color(hex: 0xD23B2C) : Color(hex: 0xC9870A)
+        // Colored wash keeps the high/low cue; the icon itself uses a darker shade so it reads (AA).
+        let wash = tip.isHigh ? Color(hex: 0xD23B2C) : Color(hex: 0xC9870A)
+        let iconColor = tip.isHigh ? Color(hex: 0xB02617) : Color(hex: 0x8B5F0A)
         GlassCard {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(spacing: 12) {
                     ZStack {
-                        Circle().fill(accent.opacity(0.14)).frame(width: 40, height: 40)
+                        Circle().fill(wash.opacity(0.16)).frame(width: 40, height: 40)
                         Image(systemName: tip.icon)
                             .font(.system(size: 18, weight: .semibold))
-                            .foregroundStyle(accent)
+                            .foregroundStyle(iconColor)
                     }
                     Text(tip.title)
                         .font(Theme.heading(17))

@@ -106,7 +106,7 @@ async function generateExplanations(
   return toolUse.input as Explanations;
 }
 
-export const confirmAndExplain = onCall({ secrets: [anthropicKey] }, async (req) => {
+export const confirmAndExplain = onCall({ secrets: [anthropicKey], timeoutSeconds: 300 }, async (req) => {
   const uid = req.auth?.uid;
   if (!uid) throw new HttpsError("unauthenticated", "Sign in required.");
   const { reportId, corrections } = (req.data ?? {}) as ExplainRequest;

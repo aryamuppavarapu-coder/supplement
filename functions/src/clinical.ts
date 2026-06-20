@@ -23,7 +23,7 @@ function clinicalTierEnabled(): boolean {
   return process.env.CLINICAL_TIER_ENABLED === "true";
 }
 
-export const requestClinicalReview = onCall({ secrets: [anthropicKey] }, async (req) => {
+export const requestClinicalReview = onCall({ secrets: [anthropicKey], timeoutSeconds: 300 }, async (req) => {
   const uid = req.auth?.uid;
   if (!uid) throw new HttpsError("unauthenticated", "Sign in required.");
 
@@ -77,6 +77,12 @@ export const requestClinicalReview = onCall({ secrets: [anthropicKey] }, async (
       },
     ],
   });
+
+  // A truncated draft could silently drop a differential or its cited rationale — reject it
+  // so a clinician never reviews incomplete AI output (SPEC §2.7).
+  if (msg.stop_reason === "max_tokens") {
+    throw new HttpsError("internal", "Clinical draft truncated (max_tokens) — input too large; split it before review.");
+  }
 
   const toolUse = msg.content.find((b) => b.type === "tool_use");
   if (!toolUse || toolUse.type !== "tool_use") {

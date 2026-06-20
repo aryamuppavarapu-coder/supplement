@@ -21,8 +21,8 @@ enum Theme {
     // Accent text colors — all chosen dark enough to read on light surfaces (≥4.5:1),
     // so headings/labels/icons can use color tastefully instead of only black.
     static let blue = Color(hex: 0x2C6FA6)        // calm blue (info, summaries)
-    static let teal = Color(hex: 0x227F86)        // deep teal (qualitative, badges)
-    static let amber = Color(hex: 0xB26C12)       // warm amber/orange (caution, highlights)
+    static let teal = Color(hex: 0x1B6E75)        // deep teal (qualitative, badges) — AA on tint
+    static let amber = Color(hex: 0x8F5A0E)       // warm amber/brown (caution) — AA on tint
     static let berry = Color(hex: 0xB14A6B)       // muted berry (occasional accent)
 
     static let accent = sageDeep

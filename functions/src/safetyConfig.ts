@@ -44,6 +44,16 @@ export function loadSafetyConfig(): SafetyConfig {
     plausibility: tryLoad("../../config/plausibility.json", DEFAULT_SAFETY_CONFIG.plausibility),
   };
 
+  // Defense-in-depth: the illustrative-config bypass must NEVER run in a declared production
+  // environment, even if the flag leaks into prod secrets (SPEC §6/§12). A real launch must
+  // ship clinician-reviewed tables (populated reviewedBy/reviewedAt) instead of relying on this.
+  if (process.env.APP_ENV === "production" && process.env.ALLOW_UNPROVENANCED_CONFIG === "true") {
+    throw new Error(
+      "ALLOW_UNPROVENANCED_CONFIG must never be set when APP_ENV=production (SPEC §6/§12). " +
+        "Remove the flag and provide clinician-reviewed /config tables before launch.",
+    );
+  }
+
   // Enforce by default everywhere; only an explicit dev/test bypass may skip it.
   const allowUnprovenanced =
     process.env.APP_ENV === "test" || process.env.ALLOW_UNPROVENANCED_CONFIG === "true";
