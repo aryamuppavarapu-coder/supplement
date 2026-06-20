@@ -62,7 +62,7 @@ struct ConfirmValuesView: View {
                             }
                             .padding(.horizontal, 14)
                             .padding(.vertical, 10)
-                            .background(.white.opacity(0.35), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            .background(Theme.cream, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 14, style: .continuous)
                                     .stroke(Theme.sage.opacity(0.35), lineWidth: 1)

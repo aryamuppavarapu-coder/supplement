@@ -71,7 +71,7 @@ struct IntakeView: View {
                                     .foregroundStyle(Theme.ink)
                                     .padding(.vertical, 10)
                                     .padding(.horizontal, 14)
-                                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                                    .background(Theme.cream, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                                     .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Theme.sage.opacity(0.35), lineWidth: 1))
                             }
 
@@ -201,11 +201,11 @@ struct IntakeView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(
                         RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .fill(isOn ? Theme.tintFill : LinearGradient(colors: [.white.opacity(0.35), .white.opacity(0.15)], startPoint: .top, endPoint: .bottom))
+                            .fill(isOn ? Theme.tintFill : LinearGradient(colors: [Theme.surface, Theme.surface], startPoint: .top, endPoint: .bottom))
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .stroke(isOn ? Theme.sage.opacity(0.5) : .white.opacity(0.4), lineWidth: 1)
+                            .stroke(isOn ? Theme.sage.opacity(0.5) : Theme.sage.opacity(0.22), lineWidth: 1)
                     )
                 }
                 .buttonStyle(.plain)

@@ -100,7 +100,7 @@ struct AuthView: View {
                             }
                             .padding(.vertical, 12)
                             .padding(.horizontal, 14)
-                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            .background(Theme.cream, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                             .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Theme.sage.opacity(0.35), lineWidth: 1))
 
                             HStack(spacing: 10) {
@@ -113,7 +113,7 @@ struct AuthView: View {
                             }
                             .padding(.vertical, 12)
                             .padding(.horizontal, 14)
-                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            .background(Theme.cream, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                             .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Theme.sage.opacity(0.35), lineWidth: 1))
                         }
 
