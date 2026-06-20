@@ -35,7 +35,9 @@ function buildSourceBlock(contentType: string, base64: string): Anthropic.Conten
 }
 
 export const onReportUpload = onObjectFinalized(
-  { secrets: [anthropicKey], memory: "1GiB", timeoutSeconds: 540 },
+  // Storage triggers MUST run in the bucket's region (us-east1), regardless of the
+  // global default (us-central1, where the callables run). Pin it explicitly.
+  { region: "us-east1", secrets: [anthropicKey], memory: "1GiB", timeoutSeconds: 540 },
   async (event) => {
     const name = event.data.name;
     if (!name) return;
