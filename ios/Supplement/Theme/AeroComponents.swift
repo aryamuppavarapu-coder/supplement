@@ -57,8 +57,9 @@ struct AeroButtonStyle: ButtonStyle {
     }
 
     /// Inner view so we can read `isEnabled` and visibly grey the button out when disabled.
-    private struct Body: View {
-        let configuration: Configuration
+    /// Must be at least as accessible as AeroButtonStyle (ButtonStyle.Body requirement) — not private.
+    struct Body: View {
+        let configuration: ButtonStyleConfiguration
         @Environment(\.isEnabled) private var isEnabled
         private var greyed: LinearGradient {
             LinearGradient(colors: [Color(hex: 0xBCC6BF), Color(hex: 0xA6B1AA)], startPoint: .top, endPoint: .bottom)
