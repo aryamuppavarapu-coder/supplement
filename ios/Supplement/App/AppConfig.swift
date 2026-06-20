@@ -6,6 +6,8 @@ enum AppConfig {
     /// Replace with your key from the RevenueCat dashboard, e.g. "appl_xxxxx".
     static let revenueCatAPIKey = ""
 
-    /// Cloud Functions region (must match functions/src/index.ts setGlobalOptions).
-    static let functionsRegion = "us-east1"
+    /// Cloud Functions region for CALLABLES. They deploy to us-central1 (the firebase
+    /// default) — the storage trigger is separately pinned to the bucket region. Must match
+    /// where the callables actually run, or callable invocations 404 ("NOT FOUND").
+    static let functionsRegion = "us-central1"
 }

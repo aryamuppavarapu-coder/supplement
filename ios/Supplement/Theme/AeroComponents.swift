@@ -7,10 +7,11 @@ struct AeroBackground: View {
     var body: some View {
         ZStack {
             Theme.background
-            orb(Theme.aqua.opacity(0.40), size: 320, x: -130, y: -240, blur: 80)
-            orb(Theme.mint.opacity(0.45), size: 260, x: 150, y: -90, blur: 90)
-            orb(Theme.sage.opacity(0.28), size: 300, x: 110, y: 380, blur: 100)
-            orb(Color.white.opacity(0.5), size: 180, x: -120, y: 320, blur: 70)
+            // Kept subtle so text stays readable over the background.
+            orb(Theme.aqua.opacity(0.22), size: 320, x: -130, y: -240, blur: 95)
+            orb(Theme.mint.opacity(0.24), size: 260, x: 150, y: -90, blur: 105)
+            orb(Theme.sage.opacity(0.15), size: 300, x: 110, y: 380, blur: 115)
+            orb(Color.white.opacity(0.35), size: 180, x: -120, y: 320, blur: 85)
         }
         .ignoresSafeArea()
     }
@@ -41,7 +42,8 @@ struct GlassCard<Content: View>: View {
         content()
             .padding(padding)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            // .regularMaterial (more opaque than ultraThin) so text on cards stays readable.
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                     .stroke(
@@ -119,7 +121,7 @@ struct Wordmark: View {
         HStack(spacing: 10) {
             LogoMark(size: size * 1.5)
             Text(Theme.appName)
-                .font(.system(size: size, weight: .bold, design: .rounded))
+                .font(.system(size: size, weight: .bold, design: .serif))
                 .foregroundStyle(Theme.ink)
         }
     }

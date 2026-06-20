@@ -13,8 +13,8 @@ enum Theme {
     static let aqua = Color(hex: 0x8AD7D2)        // aqua accent (Frutiger Aero water)
     static let sky = Color(hex: 0xCBEDF2)         // pale sky
     static let cream = Color(hex: 0xF4F8EF)       // warm off-white background
-    static let ink = Color(hex: 0x26352B)         // deep text
-    static let inkSoft = Color(hex: 0x5C6F62)     // secondary text
+    static let ink = Color(hex: 0x1F2D25)         // deep text (high contrast)
+    static let inkSoft = Color(hex: 0x44574B)     // secondary text (darkened so it's readable)
 
     /// App accent (overrides the SwiftUI default via `.tint`).
     static let accent = sageDeep
@@ -37,10 +37,13 @@ enum Theme {
     }
 
     // ── Type ──────────────────────────────────────────────────────────────────
-    static func title(_ size: CGFloat = 28) -> Font { .system(size: size, weight: .bold, design: .rounded) }
-    static func heading(_ size: CGFloat = 20) -> Font { .system(size: size, weight: .semibold, design: .rounded) }
+    // Serif display for headings (premium, editorial wellness feel) + crisp SF Pro for
+    // body/secondary. The previous all-rounded face read as bland and low-contrast.
+    static func title(_ size: CGFloat = 28) -> Font { .system(size: size, weight: .bold, design: .serif) }
+    static func heading(_ size: CGFloat = 20) -> Font { .system(size: size, weight: .semibold, design: .serif) }
+    /// Body + secondary text. (Name kept so existing call sites don't change; now SF Pro.)
     static func rounded(_ style: Font.TextStyle = .body, weight: Font.Weight = .regular) -> Font {
-        .system(style, design: .rounded).weight(weight)
+        .system(style, design: .default).weight(weight)
     }
 
     // ── Status colors (calm + non-alarming per SPEC §2.1, except critical) ──────

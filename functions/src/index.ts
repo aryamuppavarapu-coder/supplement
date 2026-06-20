@@ -9,9 +9,11 @@
  */
 import { setGlobalOptions } from "firebase-functions/v2";
 
-// Region must match the Cloud Storage bucket's region (the onReportUpload trigger
-// listens to it). This project's default bucket is us-east1.
-setGlobalOptions({ region: "us-east1", maxInstances: 10 });
+// NOTE: in ESM, the re-exports below evaluate BEFORE this statement, so setGlobalOptions
+// does NOT change the callables' region — they use the firebase default (us-central1), which
+// is where they're live and what the iOS app targets (AppConfig.functionsRegion). The
+// onReportUpload storage trigger is pinned to the bucket region (us-east1) automatically.
+setGlobalOptions({ region: "us-central1", maxInstances: 10 });
 
 export { onReportUpload } from "./extract.js";
 export { confirmAndExplain } from "./explain.js";
